@@ -1,0 +1,437 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>docker 基础工作原理（二） | chenbiaolong&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenbiaolong">
+    
+    <meta name="description" content="在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。
+loop设备介绍
+在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替代块特殊文件的接口。因此，如果这个文件包含有一个完整的文件系统，那么这个文件就可以像一个磁盘设备一样被 mount 起来。">
+    
+    
+    <meta name="description" content="在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。
+loop设备介绍
+在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker 基础工作原理（二）">
+<meta property="og:url" content="http://yoursite.com/2015/01/15/docker-basic2-md/">
+<meta property="og:site_name" content="chenbiaolong's blog">
+<meta property="og:description" content="在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。
+loop设备介绍
+在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替">
+<meta property="og:image" content="/img/docker-devicemapper.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="docker 基础工作原理（二）">
+<meta name="twitter:description" content="在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。
+loop设备介绍
+在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替">
+
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="chenbiaolong&#39;s blog">chenbiaolong&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">存档</a></li>
+					
+						<li><a href="/about">about</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/01/15/docker-basic2-md/" title="docker 基础工作原理（二）" itemprop="url">docker 基础工作原理（二）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://yoursite.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		
+  <p class="article-time">
+    <time datetime="2015-01-15T11:22:30.000Z" itemprop="datePublished"> Published Jan 15 2015</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#loop设备介绍"><span class="toc-number">1.</span> <span class="toc-text">loop设备介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#loop设备测试实例"><span class="toc-number">1.0.1.</span> <span class="toc-text">loop设备测试实例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker存储结构分析"><span class="toc-number">2.</span> <span class="toc-text">docker存储结构分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文章"><span class="toc-number">3.1.</span> <span class="toc-text">参考文章</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。</p>
+<h2 id="loop设备介绍">loop设备介绍</h2>
+<p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。<br>在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替代块特殊文件的接口。因此，如果这个文件包含有一个完整的文件系统，那么这个文件就可以像一个磁盘设备一样被 mount 起来。<br><a id="more"></a></p>
+<h4 id="loop设备测试实例">loop设备测试实例</h4>
+<ol>
+<li>首先创建一个 1G 大小的空文件：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dd <span class="variable">if=</span>/dev/zero <span class="variable">of=</span>loopfile.img <span class="variable">bs=</span><span class="number">1</span>G <span class="variable">count=</span><span class="number">1</span></div></pre></td></tr></table></figure>
+
+<p>2.对该文件格式化为 ext4 格式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"># mkfs.ext4    loopfile.img</div><div class="line">mke2fs <span class="number">1.41</span><span class="number">.11</span> (<span class="number">14</span>-Mar-<span class="number">2010</span>)</div><div class="line">loopfile.img <span class="keyword">is</span> <span class="keyword">not</span> a <span class="keyword">block</span> special device.</div><div class="line">Proceed anyway? (y,n) y</div><div class="line">Filesystem <span class="keyword">label</span>=</div><div class="line">OS <span class="keyword">type</span>: Linux</div><div class="line"><span class="keyword">Block</span> size=<span class="number">4096</span> (log=<span class="number">2</span>)</div><div class="line">Fragment size=<span class="number">4096</span> (log=<span class="number">2</span>)</div><div class="line">Stride=<span class="number">0</span> blocks, Stripe width=<span class="number">0</span> blocks</div><div class="line"><span class="number">65536</span> inodes, <span class="number">262144</span> blocks</div><div class="line"><span class="number">13107</span> blocks (<span class="number">5.00</span>%) reserved <span class="keyword">for</span> the super user</div><div class="line">First data <span class="keyword">block</span>=<span class="number">0</span></div><div class="line">Maximum filesystem blocks=<span class="number">268435456</span></div><div class="line"><span class="number">8</span> <span class="keyword">block</span> groups</div><div class="line"><span class="number">32768</span> blocks per <span class="keyword">group</span>, <span class="number">32768</span> fragments per <span class="keyword">group</span></div><div class="line"><span class="number">8192</span> inodes per <span class="keyword">group</span></div><div class="line">Superblock backups stored <span class="keyword">on</span> blocks:</div><div class="line"><span class="number">32768</span>,<span class="number">98304</span>, <span class="number">163840</span>, <span class="number">229376</span></div><div class="line">Writing inode tables:done</div><div class="line">Creating journal (<span class="number">8192</span> blocks): done</div><div class="line">Writing superblocks <span class="keyword">and</span> filesystem accounting information:done</div><div class="line">This filesystem will be automatically checked every <span class="number">38</span> mountsor</div><div class="line"><span class="number">180</span> days, whichever comesfirst. <span class="keyword">Use</span> tune2fs -c <span class="keyword">or</span> -i tooverride.</div></pre></td></tr></table></figure>
+
+<p>用 file 命令查看下格式化后的文件类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor"># file loopfile.img</span></div><div class="line"><span class="title">loopfile</span>.img: <span class="type">Linux</span> rev <span class="number">1.0</span> ext4 filesystem <span class="typedef"><span class="keyword">data</span>,<span class="type">UUID</span>=a9dfb4a0-6653-4407-ae05-7044d92c1159 <span class="container">(<span class="title">extents</span>)</span> <span class="container">(<span class="title">large</span> <span class="title">files</span>)</span><span class="container">(<span class="title">huge</span> <span class="title">files</span>)</span></span></div></pre></td></tr></table></figure>
+
+<p>准备将上面的文件挂载起来：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor"># mkdir /mnt/loopback</span></div><div class="line"><span class="preprocessor"># mount -o loop loopfile.img /mnt/loopback</span></div></pre></td></tr></table></figure>
+
+<p>mount 命令的 -o loop 选项可以将任意一个 loopback 文件系统挂载。上面的 mount 命令实际等价于下面两条命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor"># losetup /dev/loop0   loopfile.img</span></div><div class="line"><span class="preprocessor"># mount /dev/loop0    /mnt/loopback</span></div></pre></td></tr></table></figure>
+
+<p>因此实际上，mount -o loop 在内部已经默认的将文件和 /dev/loop0 挂载起来了。然而对于第一种方法(mount -oloop)并不能适用于所有的场景。比如，我们想创建一个硬盘文件，然后对该文件进行分区，接着挂载其中一个子分区，这时就不能用 -oloop 这种方法了。因此必须如下做：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor"># losetup /dev/loop1   loopfile.img</span></div><div class="line"><span class="preprocessor"># fdisk /dev/loop1</span></div></pre></td></tr></table></figure>
+
+<p>卸载挂载点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor"># umount /mnt/loopback</span></div></pre></td></tr></table></figure>
+
+<h2 id="docker存储结构分析">docker存储结构分析</h2>
+<p>docker中镜像的layer是通过device mapper thin provisioning（自动精简配置）模式实现的。<br>thin provision是在 kernel3.2 中引入的。它主要有以下一些特点：<br>（1）允许多个虚拟设备存储在相同的数据卷中，从而达到共享数据，节省空间的目的；<br>（2）支持任意深度的快照。之前的实现的性能为O(n)，新的实现通过一个单独的数据避免了性能随快照深度的增加而降低。<br>（3）支持元数据存储到单独的设备上。这样就可以将元数据放到镜像设备或者更快的SSD上。<br>thin provisioning模式需要两个块设备，一个存储data信息，一个存储metadata信息。设置好这两个块设备之后thin provision可以建立一个存储池（pool）。<br>具体到docker，docker在/var/lib/docker/devicemapper自动创建两个稀疏文件：data文件（默认100G）和metadata文件（默认2G）。稀疏文件只有在真正往里面存入数据后才会实际占用磁盘空间。这两个文件与2个loop设备进行连接，一般来说data文件关联到/dev/loop0设备，metadata文件关联到/dev/loop1设备。thin provison通过这两个设备建立起一个存储池。可以通过dmsetup table查看存储池信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="attr_selector">[root@localhost devicemapper]</span># <span class="tag">dmsetup</span> <span class="tag">table</span></div><div class="line"><span class="tag">docker-253</span><span class="pseudo">:1-153295518-pool</span>: 0 209715200 <span class="tag">thin-pool</span> 7<span class="pseudo">:1</span> 7<span class="pseudo">:0</span> 128 32768 1 <span class="tag">skip_block_zeroing</span> </div><div class="line"><span class="tag">centos-home</span>: 0 1628528640 <span class="tag">linear</span> 8<span class="pseudo">:3</span> 8161280</div><div class="line"><span class="tag">centos-swap</span>: 0 8159232 <span class="tag">linear</span> 8<span class="pseudo">:3</span> 2048</div><div class="line"><span class="tag">centos-root</span>: 0 104857600 <span class="tag">linear</span> 8<span class="pseudo">:3</span> 1636689920</div></pre></td></tr></table></figure>
+
+<p>pool的具体信息如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">docker-253</span><span class="pseudo">:1-153295518-pool</span>: 0 209715200 <span class="tag">thin-pool</span> 7<span class="pseudo">:1</span> 7<span class="pseudo">:0</span> 128 32768 1</div></pre></td></tr></table></figure>
+
+<p>可以通过dmsetup命令具体分析其table格式：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="title">dmsetup</span> create pool \</div><div class="line">	--table <span class="string">"0 209715200 thin-pool <span class="variable">$metadata_dev</span> <span class="variable">$data_dev</span> \</span></div><div class="line">		 <span class="variable">$data_block_size</span> <span class="variable">$low_water_mark</span></div></pre></td></tr></table></figure>
+
+<p>这个存储池大小为209715200/2/1024/1024=100G，metadata设备为7：1，在我的电脑中对应/dev/loop1，data设备为7：0 对应/dev/loop0设备。128指data_block_size，它代表一次申请的最小磁盘空间，单位为sector（512字节）。32768是low_water_mark，单位也是sector。当data的实际剩余空间小于这个值时将会触发一个dm event。详细说明请参考官方文档：<a href="https://www.kernel.org/doc/Documentation/device-mapper/thin-provisioning.txt" target="_blank" rel="external">https://www.kernel.org/doc/Documentation/device-mapper/thin-provisioning.txt</a></p>
+<p>当启动容器后将会从该存储池中分配出10G(默认值)空间创建thin volume，用来存储镜像和容器文件系统的数据。这个过程具体是通过快照(snapshot)实现的。因此同一个镜像可以通过快照被多个容器使用，当容器修改镜像时，通过copy on write实现镜像的修改。<br>综合来看，docker的存储结构如下图所示<br><img src="/img/docker-devicemapper.png" alt="docker存储结构"><br>比如创建一个apache容器时devicemapper处理流程如下所示：<br>1.Create a snapshot of the base device.<br>2.Mount it and apply the changes in the fedora image.<br>3.Create a snapshot based on the fedora device.<br>4.Mount it and apply the changes in the apache image.<br>5.Create a snapshot based on the apache device.<br>6.Mount it and use as the root in the new container.<br>其中base device是所有容器的祖先镜像，在docker中可以具体参考setupBaseImage函数。简单来说base device是一个空的格式化过的设备，其格式只能为xfs或者ext4，大小默认为10G，在docker server端启动时可以通过dm.basesize设定。因为base device是所有的容器的共同祖先镜像，一旦大小设定，在不重新启动docker server时docker无法改变其大小（当然也可以自己手动通过device mapper扩充容量，可以参考<a href="http://www.cnblogs.com/feisky/p/4106004.html" target="_blank" rel="external">使用 Device Mapper来改变Docker容器的大小</a>）</p>
+<h2 id="总结">总结</h2>
+<p>目前只对docker如何使用devicemapper有了大致框架的了解，具体细节还没完全搞懂，后面再根据docker源码详细分析。</p>
+<h3 id="参考文章">参考文章</h3>
+<p>[1]<a href="http://wushank.blog.51cto.com/3489095/1212647" target="_blank" rel="external">loop device介绍及losetup使用</a><br>[2]<a href="http://www.projectatomic.io/docs/filesystems/" target="_blank" rel="external">http://www.projectatomic.io/docs/filesystems/</a><br>[3]<a href="http://www.cnblogs.com/feisky/p/4106212.html" target="_blank" rel="external">http://www.cnblogs.com/feisky/p/4106212.html</a><br>[4]<a href="https://hustcat.github.io/docker-devicemapper2/" target="_blank" rel="external">https://hustcat.github.io/docker-devicemapper2/</a><br>[5]<a href="http://blogs.gnome.org/alexl/2013/10/15/adventures-in-docker-land/" target="_blank" rel="external">Adventures in Docker land</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/docker/">docker</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker-基础工作原理/">docker 基础工作原理</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2015/01/15/docker-basic2-md/" data-title="docker 基础工作原理（二） | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+
+
+
+
+ 
+ <div class="prev" >
+ <a href="/2015/01/22/google-protobuf/" title="google Protocol Buffer 入门">
+  <strong>下一篇：</strong><br/>
+  <span>
+  google Protocol Buffer 入门</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/01/09/docker-basic1/"  title="docker 基础工作原理（一）">
+ <strong>上一篇：</strong><br/> 
+ <span>docker 基础工作原理（一）
+</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/01/15/docker-basic2-md/" data-title="docker 基础工作原理（二）" data-url="http://yoursite.com/2015/01/15/docker-basic2-md/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#loop设备介绍"><span class="toc-number">1.</span> <span class="toc-text">loop设备介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#loop设备测试实例"><span class="toc-number">1.0.1.</span> <span class="toc-text">loop设备测试实例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker存储结构分析"><span class="toc-number">2.</span> <span class="toc-text">docker存储结构分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文章"><span class="toc-number">3.1.</span> <span class="toc-text">参考文章</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>2</sup></a></li>
+		
+			<li><a href="/categories/第三方软件/" title="第三方软件">第三方软件<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/docker-基础工作原理/" title="docker 基础工作原理">docker 基础工作原理<sup>2</sup></a></li>
+		
+			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
+		
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
+		
+			<li><a href="/tags/docker/" title="docker">docker<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://www.zybuluo.com/mdeditor" target="_blank" title="在线markdown工具">在线markdown工具</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://lxr.free-electrons.com/ident" target="_blank" title="linux内核代码检索">linux内核代码检索</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+
+  
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
+		
+		<!-- Analytics Begin -->
+		
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd945ed3061f3e880f79e49bd827e29c0' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+		<!-- Analytics End -->
+		</p>
+</div>
+</footer>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chenbiaolong"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+
+
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+  </body>
+</html>
