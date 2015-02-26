@@ -17,7 +17,7 @@
 传统上，linux很多资源是全局管理的，例如系统中所有的进程是通过pid标识的，这意味着内核管理着一个全局pid表，进程号必须为唯一的。类似的还有内核的文件系统挂载点数据信息、用户ID号等。我们知道，要实现虚拟化必须要有独立的资源分配，才能使容器之间不互相影响，那如何使这些全局表局域化呢？答案是namespace。Namespace将传统的全局资源变为某个名字空间的局域资源。目前linux内">
 <meta property="og:type" content="article">
 <meta property="og:title" content="docker实现原理之namespace">
-<meta property="og:url" content="www.chenbiaolong.com/2015/02/26/docker实现原理之namespace/">
+<meta property="og:url" content="http://chenbiaolong.com/2015/02/26/docker实现原理之namespace/">
 <meta property="og:site_name" content="chenbiaolong's blog">
 <meta property="og:description" content="概要
 传统上，linux很多资源是全局管理的，例如系统中所有的进程是通过pid标识的，这意味着内核管理着一个全局pid表，进程号必须为唯一的。类似的还有内核的文件系统挂载点数据信息、用户ID号等。我们知道，要实现虚拟化必须要有独立的资源分配，才能使容器之间不互相影响，那如何使这些全局表局域化呢？答案是namespace。Namespace将传统的全局资源变为某个名字空间的局域资源。目前linux内">
@@ -65,7 +65,7 @@
 					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
 						<label>Search</label>
 						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
-						<input type="hidden" name="q" value="site:www.chenbiaolong.com">
+						<input type="hidden" name="q" value="site:chenbiaolong.com">
 					</form>
 					
 					</li>
@@ -84,7 +84,7 @@
   </h1>
   <p class="article-author">By
        
-		<a href="www.chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
 		
   <p class="article-time">
     <time datetime="2015-02-26T11:26:25.000Z" itemprop="datePublished"> Published Feb 26 2015</time>
@@ -152,7 +152,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="www.chenbiaolong.com/2015/02/26/docker实现原理之namespace/" data-title="docker实现原理之namespace | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  <div data-url="http://chenbiaolong.com/2015/02/26/docker实现原理之namespace/" data-title="docker实现原理之namespace | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -183,7 +183,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2015/02/26/docker实现原理之namespace/" data-title="docker实现原理之namespace" data-url="www.chenbiaolong.com/2015/02/26/docker实现原理之namespace/"></div>
+	<div class="ds-thread" data-thread-key="2015/02/26/docker实现原理之namespace/" data-title="docker实现原理之namespace" data-url="http://chenbiaolong.com/2015/02/26/docker实现原理之namespace/"></div>
 </section>
 
 
@@ -281,7 +281,7 @@
 	</div>
 		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
 		
-		<a href="www.chenbiaolong.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
+		<a href="http://chenbiaolong.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
 		
 		<!-- Analytics Begin -->
 		
