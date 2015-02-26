@@ -103,7 +103,7 @@ docker是近年来新兴的虚拟化工具，它可以和虚拟机一样实现�
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机实现原理比较"><span class="toc-number">2.</span> <span class="toc-text">docker与虚拟机实现原理比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机计算效率比较"><span class="toc-number">3.</span> <span class="toc-text">docker与虚拟机计算效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机内存访问效率比较"><span class="toc-number">4.</span> <span class="toc-text">docker与虚拟机内存访问效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机启动时间及资源耗费比较"><span class="toc-number">5.</span> <span class="toc-text">docker与虚拟机启动时间及资源耗费比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker的劣势"><span class="toc-number">6.</span> <span class="toc-text">docker的劣势</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-number">7.</span> <span class="toc-text">参考文献</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机实现原理比较"><span class="toc-number">2.</span> <span class="toc-text">docker与虚拟机实现原理比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机计算效率比较"><span class="toc-number">3.</span> <span class="toc-text">docker与虚拟机计算效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机内存访问效率比较"><span class="toc-number">4.</span> <span class="toc-text">docker与虚拟机内存访问效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机启动时间及资源耗费比较"><span class="toc-number">5.</span> <span class="toc-text">docker与虚拟机启动时间及资源耗费比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker的劣势"><span class="toc-number">6.</span> <span class="toc-text">docker的劣势</span></a></li></ol>
 		
 		</div>
 		
@@ -119,11 +119,6 @@ docker是近年来新兴的虚拟化工具，它可以和虚拟机一样实现�
 <p>上面两个小节主要从运行在docker里的程序和运行在虚拟机里的程序进行性能比较。事实上，docker之所以如此受到开发者关注的另外一个重要原因是启动docker的系统代价比启动一台虚拟机的代价要低得多：无论从启动时间还是从启动资源耗费角度来说。docker直接利用宿主机的系统内核，避免了虚拟机启动时所需的系统引导时间和操作系统运行的资源消耗。利用docker能在几秒钟之内启动大量的容器，这是虚拟机无法办到的。快速启动、低系统资源消耗的优点使docker在弹性云平台和自动运维系统方面有着很好的应用前景。</p>
 <h2 id="docker的劣势">docker的劣势</h2>
 <p>前面的内容主要论述docker相对于虚拟机的优势，但docker也不是完美的系统。相对于虚拟机，docker还存在着以下几个缺点：<br>1.资源隔离方面不如虚拟机，docker是利用cgroup实现资源限制的，只能限制资源消耗的最大值，而不能隔绝其他程序占用自己的资源。<br>2.安全性问题。docker目前并不能分辨具体执行指令的用户，只要一个用户拥有执行docker的权限，那么他就可以对docker的容器进行所有操作，不管该容器是否是由该用户创建。比如A和B都拥有执行docker的权限，由于docker的server端并不会具体判断docker cline是由哪个用户发起的，A可以删除B创建的容器，存在一定的安全风险。<br>3.docker目前还在版本的快速更新中，细节功能调整比较大。一些核心模块依赖于高版本内核，存在版本兼容问题</p>
-<h2 id="参考文献">参考文献</h2>
-<ol>
-<li>Felter W, Ferreira A, Rajamony R, et al. An Updated Performance Comparison of Virtual Machines and Linux Containers[J]. technology, 2014, 28: 32.</li>
-<li><a href="http://www.zhihu.com/question/20848931" target="_blank" rel="external">http://www.zhihu.com/question/20848931</a></li>
-</ol>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -182,7 +177,7 @@ docker是近年来新兴的虚拟化工具，它可以和虚拟机一样实现�
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机实现原理比较"><span class="toc-number">2.</span> <span class="toc-text">docker与虚拟机实现原理比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机计算效率比较"><span class="toc-number">3.</span> <span class="toc-text">docker与虚拟机计算效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机内存访问效率比较"><span class="toc-number">4.</span> <span class="toc-text">docker与虚拟机内存访问效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机启动时间及资源耗费比较"><span class="toc-number">5.</span> <span class="toc-text">docker与虚拟机启动时间及资源耗费比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker的劣势"><span class="toc-number">6.</span> <span class="toc-text">docker的劣势</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-number">7.</span> <span class="toc-text">参考文献</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机实现原理比较"><span class="toc-number">2.</span> <span class="toc-text">docker与虚拟机实现原理比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机计算效率比较"><span class="toc-number">3.</span> <span class="toc-text">docker与虚拟机计算效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机内存访问效率比较"><span class="toc-number">4.</span> <span class="toc-text">docker与虚拟机内存访问效率比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker与虚拟机启动时间及资源耗费比较"><span class="toc-number">5.</span> <span class="toc-text">docker与虚拟机启动时间及资源耗费比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker的劣势"><span class="toc-number">6.</span> <span class="toc-text">docker的劣势</span></a></li></ol>
  
   </div>
 
@@ -211,9 +206,9 @@ docker是近年来新兴的虚拟化工具，它可以和虚拟机一样实现�
 		
 			<li><a href="/tags/docker-基础工作原理/" title="docker 基础工作原理">docker 基础工作原理<sup>2</sup></a></li>
 		
-			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
-		
 			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
+		
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
 		
 			<li><a href="/tags/docker/" title="docker">docker<sup>1</sup></a></li>
 		
