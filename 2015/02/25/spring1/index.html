@@ -1,0 +1,414 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>spring基础:spring与ibatis简单demo | chenbiaolong&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenbiaolong">
+    
+    <meta name="description" content="工程目录
+建立一个test工程，marven作为依赖管理，具体工程目录如图所示：">
+    
+    
+    <meta name="description" content="工程目录
+建立一个test工程，marven作为依赖管理，具体工程目录如图所示：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring基础:spring与ibatis简单demo">
+<meta property="og:url" content="http://yoursite.com/2015/02/25/spring1/">
+<meta property="og:site_name" content="chenbiaolong's blog">
+<meta property="og:description" content="工程目录
+建立一个test工程，marven作为依赖管理，具体工程目录如图所示：">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blog_TimLine%E6%88%AA%E5%9B%BE20150206160918.png">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blog_61b32fbb-1c8f-35ae-91cd-05dfd027b123.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="spring基础:spring与ibatis简单demo">
+<meta name="twitter:description" content="工程目录
+建立一个test工程，marven作为依赖管理，具体工程目录如图所示：">
+
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="chenbiaolong&#39;s blog">chenbiaolong&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">存档</a></li>
+					
+						<li><a href="/about">about</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/02/25/spring1/" title="spring基础:spring与ibatis简单demo" itemprop="url">spring基础:spring与ibatis简单demo</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://yoursite.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		
+  <p class="article-time">
+    <time datetime="2015-02-25T11:16:21.000Z" itemprop="datePublished"> Published Feb 25 2015</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#工程目录"><span class="toc-number">1.</span> <span class="toc-text">工程目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#web-xml配置"><span class="toc-number">2.</span> <span class="toc-text">web.xml配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mvc-dispatcher-servlet-xml"><span class="toc-number">3.</span> <span class="toc-text">mvc-dispatcher-servlet.xml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SqlMapConfig-xml"><span class="toc-number">4.</span> <span class="toc-text">SqlMapConfig.xml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Person-xml"><span class="toc-number">5.</span> <span class="toc-text">Person.xml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Person-java"><span class="toc-number">6.</span> <span class="toc-text">Person.java</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IAction-java"><span class="toc-number">7.</span> <span class="toc-text">IAction.java</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ActionImpl-java"><span class="toc-number">8.</span> <span class="toc-text">ActionImpl.java</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HelloControl-java"><span class="toc-number">9.</span> <span class="toc-text">HelloControl.java</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="工程目录">工程目录</h2>
+<p>建立一个test工程，marven作为依赖管理，具体工程目录如图所示：<br><a id="more"></a></p>
+<p><img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog_TimLine%E6%88%AA%E5%9B%BE20150206160918.png" alt=""></p>
+<h2 id="web-xml配置">web.xml配置</h2>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="title">web-app</span> <span class="attribute">version</span>=<span class="value">"2.4"</span></span></div><div class="line">	<span class="attribute">xmlns</span>=<span class="value">"http://java.sun.com/xml/ns/j2ee"</span> <span class="attribute">xmlns:xsi</span>=<span class="value">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">	<span class="attribute">xsi:schemaLocation</span>=<span class="value">"http://java.sun.com/xml/ns/j2ee </span></div><div class="line">	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"&gt;</div><div class="line">	<span class="tag">&lt;<span class="title">display-name</span>&gt;</span>Spring MVC Application<span class="tag">&lt;/<span class="title">display-name</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="title">servlet</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">servlet-name</span>&gt;</span>mvc-dispatcher<span class="tag">&lt;/<span class="title">servlet-name</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="title">servlet-class</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">load-on-startup</span>&gt;</span>1<span class="tag">&lt;/<span class="title">load-on-startup</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="title">servlet</span>&gt;</span></div><div class="line"></div><div class="line">	<span class="tag">&lt;<span class="title">servlet-mapping</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">servlet-name</span>&gt;</span>mvc-dispatcher<span class="tag">&lt;/<span class="title">servlet-name</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="title">url-pattern</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="title">servlet-mapping</span>&gt;</span></div><div class="line">	<span class="comment">&lt;!-- 强制转换成utf8格式，防止中文乱码--&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="title">filter</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">filter-name</span>&gt;</span>characterEncodingFilter<span class="tag">&lt;/<span class="title">filter-name</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">filter-class</span>&gt;</span>org.springframework.web.filter.CharacterEncodingFilter<span class="tag">&lt;/<span class="title">filter-class</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">init-param</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="title">param-name</span>&gt;</span>encoding<span class="tag">&lt;/<span class="title">param-name</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="title">param-value</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="title">param-value</span>&gt;</span></div><div class="line">		<span class="tag">&lt;/<span class="title">init-param</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">init-param</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="title">param-name</span>&gt;</span>forceEncoding<span class="tag">&lt;/<span class="title">param-name</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="title">param-value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">param-value</span>&gt;</span></div><div class="line">		<span class="tag">&lt;/<span class="title">init-param</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="title">filter</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="title">filter-mapping</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">filter-name</span>&gt;</span>characterEncodingFilter<span class="tag">&lt;/<span class="title">filter-name</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="title">url-pattern</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="title">filter-mapping</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="title">web-app</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<p><img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog_61b32fbb-1c8f-35ae-91cd-05dfd027b123.png" alt="DispatchServlet"></p>
+<h2 id="mvc-dispatcher-servlet-xml">mvc-dispatcher-servlet.xml</h2>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">&lt;beans <span class="variable">xmlns=</span><span class="string">"http://www.springframework.org/schema/beans"</span></div><div class="line">       xmlns:<span class="variable">xsi=</span><span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">       xmlns:<span class="variable">context=</span><span class="string">"http://www.springframework.org/schema/context"</span></div><div class="line">       xsi:<span class="variable">schemaLocation=</span><span class="string">"http://www.springframework.org/schema/beans</span></div><div class="line">        http://www.springframework.org/schema/beans/spring-beans.xsd</div><div class="line">        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"&gt;</div><div class="line"></div><div class="line">    &lt;context:component-scan <span class="variable">base-package=</span><span class="string">"com.springapp.mvc"</span>/&gt;</div><div class="line">    </div><div class="line">    &lt;bean <span class="variable">class=</span><span class="string">"org.springframework.web.servlet.view.InternalResourceViewResolver"</span>&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"prefix"</span> <span class="variable">value=</span><span class="string">"/WEB-INF/pages/"</span>/&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"suffix"</span> <span class="variable">value=</span><span class="string">".jsp"</span>/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean <span class="variable">id=</span><span class="string">"dataSource"</span>  <span class="variable">class=</span><span class="string">"org.apache.commons.dbcp.BasicDataSource"</span>&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"driverClassName"</span> <span class="variable">value=</span><span class="string">"com.mysql.jdbc.Driver"</span> /&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"url"</span> <span class="variable">value=</span><span class="string">"jdbc:mysql://127.0.0.1:3306/ibatis"</span>/&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"username"</span> <span class="variable">value=</span><span class="string">"root"</span>/&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"password"</span> <span class="variable">value=</span><span class="string">"root"</span>/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean <span class="variable">id=</span><span class="string">"sqlMapClient"</span> <span class="variable">class=</span><span class="string">"org.springframework.orm.ibatis.SqlMapClientFactoryBean"</span>&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"configLocation"</span> <span class="variable">value=</span><span class="string">"classpath:SqlMapConfig.xml"</span>/&gt;</div><div class="line">        &lt;property <span class="variable">name=</span><span class="string">"dataSource"</span> <span class="variable">ref=</span><span class="string">"dataSource"</span>/&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean <span class="variable">id=</span><span class="string">"Person"</span> <span class="variable">class=</span><span class="string">"po.Person"</span>&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">    &lt;bean <span class="variable">id =</span> <span class="string">"Action"</span> <span class="variable">class=</span><span class="string">"dao.impl.ActionImpl"</span>&gt;</div><div class="line">    &lt;property <span class="variable">name=</span><span class="string">"sqlMapClient"</span> <span class="variable">ref=</span><span class="string">"sqlMapClient"</span>&gt;&lt;/property&gt;</div><div class="line">    &lt;/bean&gt;</div><div class="line"></div><div class="line">&lt;/beans&gt;</div></pre></td></tr></table></figure>
+
+<h2 id="SqlMapConfig-xml">SqlMapConfig.xml</h2>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></div><div class="line"><span class="doctype">&lt;!DOCTYPE sqlMapConfig</span></div><div class="line">        PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"</div><div class="line">        "http://www.ibatis.com/dtd/sql-map-config-2.dtd"&gt;</div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="title">sqlMapConfig</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">settings</span> <span class="attribute">useStatementNamespaces</span>=<span class="value">"true"</span>/&gt;</span></div><div class="line">    <span class="comment">&lt;!--数据源配置  这块用 BD2数据库 --&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">sqlMap</span> <span class="attribute">resource</span>=<span class="value">"ibatis/Person.xml"</span> /&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="title">sqlMapConfig</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<h2 id="Person-xml">Person.xml</h2>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></div><div class="line"><span class="doctype">&lt;!DOCTYPE sqlMap</span></div><div class="line">        PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"</div><div class="line">        "http://www.ibatis.com/dtd/sql-map-2.dtd"&gt;</div><div class="line"><span class="tag">&lt;<span class="title">sqlMap</span>  <span class="attribute">namespace</span>=<span class="value">"ibatis.Person"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">typeAlias</span> <span class="attribute">alias</span>=<span class="value">"person"</span> <span class="attribute">type</span>=<span class="value">"po.Person"</span> /&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="title">insert</span> <span class="attribute">id</span>=<span class="value">"insert"</span> <span class="attribute">parameterClass</span>=<span class="value">"po.Person"</span>&gt;</span></div><div class="line">	       insert into person(name, sex) values (#name#,#sex#)</div><div class="line">    <span class="tag">&lt;/<span class="title">insert</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="title">sqlMap</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<h2 id="Person-java">Person.java</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> po;</div><div class="line"><span class="keyword">import</span> java.io.Serializable;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">implements</span> <span class="title">Serializable</span></span>{</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -<span class="number">517413165963030507</span>L;</div><div class="line">    </div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> sex;</div><div class="line">    <span class="keyword">public</span> <span class="title">Person</span>(){</div><div class="line">    }</div><div class="line">    <span class="keyword">public</span> <span class="title">Person</span>(String name,<span class="keyword">int</span> sex){</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">        <span class="keyword">this</span>.sex = sex;</div><div class="line">    }</div><div class="line">    <span class="keyword">public</span> String <span class="title">getName</span>() {</div><div class="line">        <span class="keyword">return</span> name;</div><div class="line">    }</div><div class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span>(String name) {</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">    }</div><div class="line">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getSex</span>() {</div><div class="line">        <span class="keyword">return</span> sex;</div><div class="line">    }</div><div class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSex</span>(<span class="keyword">int</span> sex) {</div><div class="line">        <span class="keyword">this</span>.sex = sex;</div><div class="line">    }</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h2 id="IAction-java">IAction.java</h2>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> dao;</div><div class="line"><span class="keyword">import</span> po.Person;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IAction</span> </span>{</div><div class="line">    <span class="keyword">public</span> Long <span class="title">insertPerson</span>(Person person);   <span class="comment">//添加</span></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h2 id="ActionImpl-java">ActionImpl.java</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> dao.impl;</div><div class="line"><span class="keyword">import</span> org.springframework.orm.ibatis.SqlMapClientTemplate;</div><div class="line"><span class="keyword">import</span> po.Person;</div><div class="line"><span class="keyword">import</span> dao.IAction;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ActionImpl</span> <span class="keyword">extends</span> <span class="title">SqlMapClientTemplate</span> <span class="keyword">implements</span> <span class="title">IAction</span> </span>{</div><div class="line">    <span class="keyword">public</span> <span class="title">ActionImpl</span>() {</div><div class="line">    }</div><div class="line">    <span class="comment">//添加操作</span></div><div class="line">    <span class="annotation">@Override</span></div><div class="line">    <span class="keyword">public</span> Long <span class="title">insertPerson</span>(Person person) {</div><div class="line">        <span class="keyword">return</span> (Long) insert(<span class="string">"ibatis.Person.insert"</span>, person);</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h2 id="HelloControl-java">HelloControl.java</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.springapp.mvc;</div><div class="line"><span class="keyword">import</span> dao.IAction;</div><div class="line"><span class="keyword">import</span> org.springframework.stereotype.Controller;</div><div class="line"><span class="keyword">import</span> org.springframework.ui.ModelMap;</div><div class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</div><div class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMethod;</div><div class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PathVariable;</div><div class="line"><span class="keyword">import</span> po.Person;</div><div class="line"><span class="keyword">import</span> java.io.*;</div><div class="line"><span class="keyword">import</span> java.sql.SQLException;</div><div class="line"><span class="keyword">import</span> javax.annotation.Resource;</div><div class="line"></div><div class="line"><span class="annotation">@Controller</span></div><div class="line"><span class="annotation">@RequestMapping</span>(<span class="string">"/"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>{</div><div class="line">	<span class="annotation">@Resource</span></div><div class="line">	<span class="keyword">private</span> Person p;</div><div class="line">	<span class="annotation">@Resource</span></div><div class="line">	<span class="keyword">private</span> IAction action;</div><div class="line">	<span class="annotation">@RequestMapping</span>(method = RequestMethod.GET)</div><div class="line">	<span class="keyword">public</span> String <span class="title">printWelcome</span>(ModelMap model) {</div><div class="line">		model.addAttribute(<span class="string">"message"</span>, <span class="string">"Hello world!"</span>);</div><div class="line">		<span class="keyword">return</span> <span class="string">"hello"</span>;</div><div class="line">	}</div><div class="line"></div><div class="line">	<span class="annotation">@RequestMapping</span>(value=<span class="string">"/add/{name}"</span>,method = RequestMethod.GET)</div><div class="line">	<span class="keyword">public</span> String <span class="title">addUser</span>(@PathVariable String name,ModelMap model) <span class="keyword">throws</span> IOException,SQLException {</div><div class="line">		p.setName(name);</div><div class="line">		p.setSex(<span class="number">2</span>);</div><div class="line">		action.insertPerson(p);</div><div class="line">		model.addAttribute(<span class="string">"message"</span>, <span class="string">"add person"</span> + name);</div><div class="line">		<span class="keyword">return</span> <span class="string">"hello"</span>;</div><div class="line">	}</div><div class="line">}</div></pre></td></tr></table></figure>
+
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring/">spring</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2015/02/25/spring1/" data-title="spring基础:spring与ibatis简单demo | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+
+
+
+
+ 
+ <div class="prev" >
+ <a href="/2015/02/26/docker-vm-cmp/" title="docker与虚拟机性能比较">
+  <strong>下一篇：</strong><br/>
+  <span>
+  docker与虚拟机性能比较</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/01/22/google-protobuf/"  title="google Protocol Buffer 入门">
+ <strong>上一篇：</strong><br/> 
+ <span>google Protocol Buffer 入门
+</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/02/25/spring1/" data-title="spring基础:spring与ibatis简单demo" data-url="http://yoursite.com/2015/02/25/spring1/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#工程目录"><span class="toc-number">1.</span> <span class="toc-text">工程目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#web-xml配置"><span class="toc-number">2.</span> <span class="toc-text">web.xml配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mvc-dispatcher-servlet-xml"><span class="toc-number">3.</span> <span class="toc-text">mvc-dispatcher-servlet.xml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SqlMapConfig-xml"><span class="toc-number">4.</span> <span class="toc-text">SqlMapConfig.xml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Person-xml"><span class="toc-number">5.</span> <span class="toc-text">Person.xml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Person-java"><span class="toc-number">6.</span> <span class="toc-text">Person.java</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IAction-java"><span class="toc-number">7.</span> <span class="toc-text">IAction.java</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ActionImpl-java"><span class="toc-number">8.</span> <span class="toc-text">ActionImpl.java</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HelloControl-java"><span class="toc-number">9.</span> <span class="toc-text">HelloControl.java</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>2</sup></a></li>
+		
+			<li><a href="/categories/第三方软件/" title="第三方软件">第三方软件<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/docker/" title="docker">docker<sup>2</sup></a></li>
+		
+			<li><a href="/tags/docker-基础工作原理/" title="docker 基础工作原理">docker 基础工作原理<sup>2</sup></a></li>
+		
+			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
+		
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://www.zybuluo.com/mdeditor" target="_blank" title="在线markdown工具">在线markdown工具</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://lxr.free-electrons.com/ident" target="_blank" title="linux内核代码检索">linux内核代码检索</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+
+  
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
+		
+		<!-- Analytics Begin -->
+		
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd945ed3061f3e880f79e49bd827e29c0' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+		<!-- Analytics End -->
+		</p>
+</div>
+</footer>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chenbiaolong"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+
+
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+  </body>
+</html>
