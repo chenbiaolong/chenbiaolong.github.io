@@ -4,21 +4,30 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>chenbiaolong&#39;s blog</title>
+    <title>docker实现原理之cgroup | chenbiaolong&#39;s blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="chenbiaolong">
     
+    <meta name="description" content="概要
+cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔">
     
-    <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="chenbiaolong's blog">
-<meta property="og:url" content="http://chenbiaolong.com/">
+    
+    <meta name="description" content="概要
+cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker实现原理之cgroup">
+<meta property="og:url" content="http://chenbiaolong.com/2015/02/27/docker实现原理之cgroup/">
 <meta property="og:site_name" content="chenbiaolong's blog">
-<meta property="og:description">
+<meta property="og:description" content="概要
+cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blog_cgroup1.png">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blog_cgroup2.png">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blog_TimLine%E6%88%AA%E5%9B%BE20150227145303.png">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="chenbiaolong's blog">
-<meta name="twitter:description">
+<meta name="twitter:title" content="docker实现原理之cgroup">
+<meta name="twitter:description" content="概要
+cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进">
 
 
     
@@ -67,12 +76,10 @@
 </div>
     </header>
     <div id="container">
-      <div id="main">
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
   <h1 itemprop="name">
     
       <a href="/2015/02/27/docker实现原理之cgroup/" title="docker实现原理之cgroup" itemprop="url">docker实现原理之cgroup</a>
@@ -86,9 +93,16 @@
     
   </p>
 </header>
-    <div class="article-content">
-        
-        <h2 id="概要">概要</h2>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cgroup_子系统介绍"><span class="toc-number">2.</span> <span class="toc-text">cgroup 子系统介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cpuset子系统"><span class="toc-number">3.</span> <span class="toc-text">cpuset子系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#memory子系统"><span class="toc-number">4.</span> <span class="toc-text">memory子系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#blkio子系统"><span class="toc-number">5.</span> <span class="toc-text">blkio子系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="概要">概要</h2>
 <p>cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进程对自己的影响）。namespace与cgroup相互配合将使容器具备环境隔离和资源限制的能力，再加上镜像提供的根目录环境，使用chroot即可以为容器提供一个隔离的根目录环境。<br>本文将主要从内核源码的角度分析docker常用的cgroup资源限制功能：cpuset memory 和blkio。</p>
 <h2 id="cgroup_子系统介绍">cgroup 子系统介绍</h2>
 <p>blkio — 这个子系统为块设备设定输入/输出限制，比如物理设备（磁盘，固态硬盘，USB 等等）。<br>cpu — 这个子系统控制cgroup中所有进程可以使用的时间片。<br>cpuacct — 这个子系统自动生成 cgroup 中任务所使用的 CPU 报告。<br>cpuset — 这个子系统为 cgroup 中的任务分配独立 CPU（在多核系统）和内存节点。<br>devices — 这个子系统可允许或者拒绝 cgroup 中的任务访问设备。<br>freezer — 这个子系统挂起或者恢复 cgroup 中的任务。<br>memory — 这个子系统设定 cgroup 中任务使用的内存限制，并自动生成由那些任务使用的内存资源报告。<br>net_cls — 这个子系统使用等级识别符（classid）标记网络数据包，可允许 Linux 流量控制程序（tc）识别从具体 cgroup 中生成的数据包。<br>ns — 名称空间子系统。<br>cgroup系统是一个树状结构，子cgroup的限定条件必须为父cgroup的子集。如下图：<br><img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog_cgroup1.png" alt="此处输入图片的描述"><br>管理功能通过 VFS (虚拟文件系统)接口暴露，新建cgroup只需建立文件夹。比如新建一个cpuset管理组，只需要在cpuset目录下新建文件夹</p>
@@ -130,14 +144,9 @@
 <p>代码注释写的比较清晰。该函数主要判断是否应该下发IO操作，并且获得需要等待的时间。因此blkio子系统限制IO速度是通过限定其平均值实现的。可以推测，当在<code>throtl_slice</code>(0.1s)时间内进行远大于设定值的IO操作时，cgroup是无法限制住的，有一定的局限性。事实上我们在IO速度限制测试中也发现了这个问题，如下图：<br><img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog_TimLine%E6%88%AA%E5%9B%BE20150227145303.png" alt="此处输入图片的描述"><br>磁盘设备限制读写速度为1MB/s，但当在短时间内有大量的IO操作时磁盘的读写速度在瞬间远超过限定值。随后速度马上变小。</p>
 <h2 id="小结">小结</h2>
 <p>本文主要分析cgroup的cpuset 子系统 memory子系统和blkio子系统。这三个系统是docker比较常用的资源限定项，docker建立的每一个容器都是一个cgroup控制组，在docker里运行的进程都处于cgroup系统的控制中。docker通过对linux内核cgroup进行封装，达到资源控制的作用。</p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
+  
+	</div>
+		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
 <div class="article-categories">
@@ -155,414 +164,52 @@
 
 
 
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenbiaolong.com/2015/02/27/docker实现原理之cgroup/" data-title="docker实现原理之cgroup | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
 
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/02/27/docker实现原理之cgroup/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/02/27/docker实现原理之cgroup/" data-count-type="comments">&nbsp;</a>
-	
-</div>
 
 </footer>
 
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/02/26/docker实现原理之namespace/" title="docker实现原理之namespace" itemprop="url">docker实现原理之namespace</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
-		
-  <p class="article-time">
-    <time datetime="2015-02-26T11:26:25.000Z" itemprop="datePublished"> Published Feb 26 2015</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="概要">概要</h2>
-<p>传统上，linux很多资源是全局管理的，例如系统中所有的进程是通过pid标识的，这意味着内核管理着一个全局pid表，进程号必须为唯一的。类似的还有内核的文件系统挂载点数据信息、用户ID号等。我们知道，要实现虚拟化必须要有独立的资源分配，才能使容器之间不互相影响，那如何使这些全局表局域化呢？答案是namespace。Namespace将传统的全局资源变为某个名字空间的局域资源。目前linux内核实现的namespace主要有:<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2015/02/26/docker实现原理之namespace/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/docker/">docker</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker-基础工作原理/">docker 基础工作原理</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
+   	       
+	</article>
 	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/02/26/docker实现原理之namespace/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/02/26/docker实现原理之namespace/" data-count-type="comments">&nbsp;</a>
+<nav class="article-nav clearfix">
+
+
+
+
+ 
+
+<div class="next">
+<a href="/2015/02/26/docker实现原理之namespace/"  title="docker实现原理之namespace">
+ <strong>上一篇：</strong><br/> 
+ <span>docker实现原理之namespace
+</span>
+</a>
+</div>
+
+
+</nav>
+
 	
-</div>
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/02/27/docker实现原理之cgroup/" data-title="docker实现原理之cgroup" data-url="http://chenbiaolong.com/2015/02/27/docker实现原理之cgroup/"></div>
+</section>
 
-</footer>
 
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/02/26/dockervm/" title="docker与虚拟机性能比较" itemprop="url">docker与虚拟机性能比较</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
-		
-  <p class="article-time">
-    <time datetime="2015-02-26T07:55:05.000Z" itemprop="datePublished"> Published Feb 26 2015</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="概要">概要</h2>
-<p>docker是近年来新兴的虚拟化工具，它可以和虚拟机一样实现资源和系统环境的隔离。本文将主要根据IBM发表的研究报告，论述docker与传统虚拟化方式的不同之处，并比较物理机、docker容器、虚拟机三者的性能差异及差异产生的原理。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2015/02/26/dockervm/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/docker/">docker</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker-基础工作原理/">docker 基础工作原理</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/02/26/dockervm/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/02/26/dockervm/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/02/25/spring1/" title="spring基础:spring与ibatis简单demo" itemprop="url">spring基础:spring与ibatis简单demo</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
-		
-  <p class="article-time">
-    <time datetime="2015-02-25T11:16:21.000Z" itemprop="datePublished"> Published Feb 25 2015</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="工程目录">工程目录</h2>
-<p>建立一个test工程，marven作为依赖管理，具体工程目录如图所示：<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2015/02/25/spring1/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring/">spring</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/02/25/spring1/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/02/25/spring1/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/01/22/google-protobuf/" title="google Protocol Buffer 入门" itemprop="url">google Protocol Buffer 入门</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
-		
-  <p class="article-time">
-    <time datetime="2015-01-22T06:35:11.000Z" itemprop="datePublished"> Published Jan 22 2015</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h3 id="简介">简介</h3>
-<p>Google Protocol Buffer( 简称 Protobuf) 是 Google 公司内部的混合语言数据标准，目前已经正在使用的有超过 48,162 种报文格式定义和超过 12,183 个 .proto 文件。他们用于 RPC 系统和持续数据存储系统。<br>Protocol Buffers 是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或 RPC 数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。目前提供了 C++、Java、Python 三种语言的 API。</p>
-
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2015/01/22/google-protobuf/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/第三方软件/">第三方软件</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/protobuf/">protobuf</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/01/22/google-protobuf/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/01/22/google-protobuf/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/01/15/docker-basic2-md/" title="docker 基础工作原理（二）" itemprop="url">docker 基础工作原理（二）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
-		
-  <p class="article-time">
-    <time datetime="2015-01-15T11:22:30.000Z" itemprop="datePublished"> Published Jan 15 2015</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。</p>
-<h2 id="loop设备介绍">loop设备介绍</h2>
-<p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。<br>在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替代块特殊文件的接口。因此，如果这个文件包含有一个完整的文件系统，那么这个文件就可以像一个磁盘设备一样被 mount 起来。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2015/01/15/docker-basic2-md/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/docker/">docker</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker-基础工作原理/">docker 基础工作原理</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/01/15/docker-basic2-md/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/01/15/docker-basic2-md/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/01/09/docker-basic1/" title="docker 基础工作原理（一）" itemprop="url">docker 基础工作原理（一）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
-		
-  <p class="article-time">
-    <time datetime="2015-01-09T07:30:41.000Z" itemprop="datePublished"> Published Jan 9 2015</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="概述">概述</h2>
-<p>相信很多人和我一样，初学docker时一直无法搞懂docker镜像的工作机理。这几天对docker如何工作进行了一番研究，简单整理一下。<br>docker的两大核心基础技术是<a href="http://lwn.net/Articles/531114/" target="_blank" rel="external">namespace</a>和cgroup，cgroup主要作资源的限制隔离，它可以限制一组进程中能使用的最大资源使用量，相对比较好理解；namespace同样可以实现资源隔离，不同的是它是通过使PID,IPC,Network等系统资源不再是全局性的，而是属于特定的Namespace实现的。每个Namespace里面的资源对其他Namespace都是透明的，这个概念有点类似于linux的多用户机制。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2015/01/09/docker-basic1/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/docker/">docker</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker-基础工作原理/">docker 基础工作原理</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="http://chenbiaolong.com/2015/01/09/docker-basic1/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/01/09/docker-basic1/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-
-</div>
+</div>  
       <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cgroup_子系统介绍"><span class="toc-number">2.</span> <span class="toc-text">cgroup 子系统介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cpuset子系统"><span class="toc-number">3.</span> <span class="toc-text">cpuset子系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#memory子系统"><span class="toc-number">4.</span> <span class="toc-text">memory子系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#blkio子系统"><span class="toc-number">5.</span> <span class="toc-text">blkio子系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
@@ -671,8 +318,69 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
 <script src="/js/gallery.js"></script>
 
 
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
 
 
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
 
 
 
@@ -713,4 +421,4 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
 <!-- MathJax End -->
 
   </body>
- </html>
+</html>
