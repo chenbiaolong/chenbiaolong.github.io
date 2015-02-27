@@ -10,7 +10,7 @@
     <meta name="author" content="chenbiaolong">
     
     <meta name="description" content="概要
-cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔">
+cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进程对自己的影响）。namespace与cgroup相互配合将使容器具备环境隔离和资源限制的能力，再加上镜像提供的根目录环境，使用chroot即可以为容器提供一个隔离的根目录环境。本文将主要从内核源码的角度分析docker常用的cgroup资源限制功能：cpuset memory 和blkio。">
     
     
     <meta name="description" content="概要
@@ -103,7 +103,7 @@ cgroups是control groups的缩写，是Linux内核提供的一种可以限制、
 		</div>
 		
 		<h2 id="概要">概要</h2>
-<p>cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进程对自己的影响）。namespace与cgroup相互配合将使容器具备环境隔离和资源限制的能力，再加上镜像提供的根目录环境，使用chroot即可以为容器提供一个隔离的根目录环境。<br>本文将主要从内核源码的角度分析docker常用的cgroup资源限制功能：cpuset memory 和blkio。</p>
+<p>cgroups是control groups的缩写，是Linux内核提供的一种可以限制、记录、隔离进程组（process groups）所使用的物理资源（如：cpu,memory,IO等等）的机制。上篇博客写的namespace作用是使linux的全局资源局域化，使各个名字空间的系统环境相互隔离，互不影响。而cgroup可以限制资源使用的最大值，限制当前进程组对外的最大影响（但无法隔离其他进程对自己的影响）。namespace与cgroup相互配合将使容器具备环境隔离和资源限制的能力，再加上镜像提供的根目录环境，使用chroot即可以为容器提供一个隔离的根目录环境。<br>本文将主要从内核源码的角度分析docker常用的cgroup资源限制功能：cpuset memory 和blkio。<br><a id="more"></a></p>
 <h2 id="cgroup_子系统介绍">cgroup 子系统介绍</h2>
 <p>blkio — 这个子系统为块设备设定输入/输出限制，比如物理设备（磁盘，固态硬盘，USB 等等）。<br>cpu — 这个子系统控制cgroup中所有进程可以使用的时间片。<br>cpuacct — 这个子系统自动生成 cgroup 中任务所使用的 CPU 报告。<br>cpuset — 这个子系统为 cgroup 中的任务分配独立 CPU（在多核系统）和内存节点。<br>devices — 这个子系统可允许或者拒绝 cgroup 中的任务访问设备。<br>freezer — 这个子系统挂起或者恢复 cgroup 中的任务。<br>memory — 这个子系统设定 cgroup 中任务使用的内存限制，并自动生成由那些任务使用的内存资源报告。<br>net_cls — 这个子系统使用等级识别符（classid）标记网络数据包，可允许 Linux 流量控制程序（tc）识别从具体 cgroup 中生成的数据包。<br>ns — 名称空间子系统。<br>cgroup系统是一个树状结构，子cgroup的限定条件必须为父cgroup的子集。如下图：<br><img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog_cgroup1.png" alt="此处输入图片的描述"><br>管理功能通过 VFS (虚拟文件系统)接口暴露，新建cgroup只需建立文件夹。比如新建一个cpuset管理组，只需要在cpuset目录下新建文件夹</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">mkdir</span> mytest</div></pre></td></tr></table></figure>
