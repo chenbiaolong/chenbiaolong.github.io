@@ -1,0 +1,411 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Intellij IDEA 搭建Hadoop开发环境 | chenbiaolong&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenbiaolong">
+    
+    <meta name="description" content="概述
+在linux环境下编译调试java代码比较麻烦，为了方便，我在windows环境下利用 IDEA搭建了Hadoop的开发环境。只要在IDEA环境中导入Hadoop的核心包，就可以在IDEA环境下编译MapReduce程序，配置生成相应的jar包。通过将该jar包导入到linux服务器的hadoop集群，就可以运行相应的MapReduce程序了。在这里我以官方的WordCount程序作为例子。">
+    
+    
+    <meta name="description" content="概述
+在linux环境下编译调试java代码比较麻烦，为了方便，我在windows环境下利用 IDEA搭建了Hadoop的开发环境。只要在IDEA环境中导入Hadoop的核心包，就可以在IDEA环境下编译MapReduce程序，配置生成相应的jar包。通过将该jar包导入到linux服务器的hadoop集群，就可以运行相应的MapReduce程序了。在这里我以官方的WordCount程序作为例子。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Intellij IDEA 搭建Hadoop开发环境">
+<meta property="og:url" content="http://chenbiaolong.com/2015/03/26/搭建Hadoop开发环境/">
+<meta property="og:site_name" content="chenbiaolong's blog">
+<meta property="og:description" content="概述
+在linux环境下编译调试java代码比较麻烦，为了方便，我在windows环境下利用 IDEA搭建了Hadoop的开发环境。只要在IDEA环境中导入Hadoop的核心包，就可以在IDEA环境下编译MapReduce程序，配置生成相应的jar包。通过将该jar包导入到linux服务器的hadoop集群，就可以运行相应的MapReduce程序了。在这里我以官方的WordCount程序作为例子。">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Intellij IDEA 搭建Hadoop开发环境">
+<meta name="twitter:description" content="概述
+在linux环境下编译调试java代码比较麻烦，为了方便，我在windows环境下利用 IDEA搭建了Hadoop的开发环境。只要在IDEA环境中导入Hadoop的核心包，就可以在IDEA环境下编译MapReduce程序，配置生成相应的jar包。通过将该jar包导入到linux服务器的hadoop集群，就可以运行相应的MapReduce程序了。在这里我以官方的WordCount程序作为例子。">
+
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="chenbiaolong&#39;s blog">chenbiaolong&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">存档</a></li>
+					
+						<li><a href="/about">about</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:chenbiaolong.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/03/26/搭建Hadoop开发环境/" title="Intellij IDEA 搭建Hadoop开发环境" itemprop="url">Intellij IDEA 搭建Hadoop开发环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		
+  <p class="article-time">
+    <time datetime="2015-03-26T08:01:30.000Z" itemprop="datePublished"> Published Mar 26 2015</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDEA新建maven项目"><span class="toc-number">2.</span> <span class="toc-text">IDEA新建maven项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写WordCount_MapReduce程序"><span class="toc-number">3.</span> <span class="toc-text">编写WordCount MapReduce程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成HelloHadoop_jar包"><span class="toc-number">4.</span> <span class="toc-text">生成HelloHadoop jar包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行HelloHadoop_jar包"><span class="toc-number">5.</span> <span class="toc-text">运行HelloHadoop jar包</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="概述">概述</h2>
+<p>在linux环境下编译调试java代码比较麻烦，为了方便，我在windows环境下利用 IDEA搭建了Hadoop的开发环境。只要在IDEA环境中导入Hadoop的核心包，就可以在IDEA环境下编译MapReduce程序，配置生成相应的jar包。通过将该jar包导入到linux服务器的hadoop集群，就可以运行相应的MapReduce程序了。在这里我以官方的WordCount程序作为例子。<br><a id="more"></a></p>
+<h2 id="IDEA新建maven项目">IDEA新建maven项目</h2>
+<p>首先在IDEA新建一个maven项目。具体新建过程参考<a href="http://guoze.me/2014/08/27/intellij-maven-develop-hadoop/" target="_blank" rel="external">http://guoze.me/2014/08/27/intellij-maven-develop-hadoop/</a><br>我新建的工程为HelloHadoop，具体的pom.xml如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></div><div class="line"><span class="tag">&lt;<span class="title">project</span> <span class="attribute">xmlns</span>=<span class="value">"http://maven.apache.org/POM/4.0.0"</span></span></div><div class="line">         <span class="attribute">xmlns:xsi</span>=<span class="value">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">    <span class="attribute">xsi:schemaLocation</span>=<span class="value">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="title">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="title">modelVersion</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>com.jd.bigdata<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>bigdata<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="title">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">repositories</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">repository</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="title">id</span>&gt;</span>apache<span class="tag">&lt;/<span class="title">id</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="title">url</span>&gt;</span>http://maven.apache.org<span class="tag">&lt;/<span class="title">url</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="title">repository</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">repositories</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="title">dependencies</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-common<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.6.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-core<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.2.1<span class="tag">&lt;/<span class="title">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;/<span class="title">dependencies</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="title">project</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<p>我们使用的Hadoop测试集群Hadoop版本为2.6.0，具体的pom.xml配置需要根据你集群的具体发行版本修改。如果版本不一致将会出现hadoop集群无法正常运行MapReduce程序的情况。开发一个普通的Hadoop项目，我们一般需要hadoop-common、hadoop-core两组依赖；如果需要读取HDFS上的文件内容，则需要hadoop-hdfs和hadoop-client另外两组依赖；如果需要读取HBase的数据，则需要再加入hbase-client。这里我们只导入了hadoop-common和hadoop-core。</p>
+<h2 id="编写WordCount_MapReduce程序">编写WordCount MapReduce程序</h2>
+<p>这里直接使用了官方的<a href="http://wiki.apache.org/hadoop/WordCount" target="_blank" rel="external">代码</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.io.IOException;</div><div class="line"><span class="keyword">import</span> java.util.*;</div><div class="line"></div><div class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.conf.*;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.io.*;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.*;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.input.FileInputFormat;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.input.TextInputFormat;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;</div><div class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WordCount</span> </span>{</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Map</span> <span class="keyword">extends</span> <span class="title">Mapper</span>&lt;<span class="title">LongWritable</span>, <span class="title">Text</span>, <span class="title">Text</span>, <span class="title">IntWritable</span>&gt; </span>{</div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> IntWritable one = <span class="keyword">new</span> IntWritable(<span class="number">1</span>);</div><div class="line">        <span class="keyword">private</span> Text word = <span class="keyword">new</span> Text();</div><div class="line"></div><div class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">map</span>(LongWritable key, Text value, Context context) </div><div class="line">            <span class="keyword">throws</span> IOException, InterruptedException {</div><div class="line">            </div><div class="line">            String line = value.toString();</div><div class="line">            StringTokenizer tokenizer = <span class="keyword">new</span> StringTokenizer(line);</div><div class="line">            <span class="keyword">while</span> (tokenizer.hasMoreTokens()) {</div><div class="line">                word.set(tokenizer.nextToken());</div><div class="line">                context.write(word, one);</div><div class="line">            }</div><div class="line">        }</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Reduce</span> <span class="keyword">extends</span> <span class="title">Reducer</span>&lt;<span class="title">Text</span>, <span class="title">IntWritable</span>, <span class="title">Text</span>, <span class="title">IntWritable</span>&gt; </span>{</div><div class="line"></div><div class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reduce</span>(Text key, Iterable&lt;IntWritable&gt; values, Context context)</div><div class="line">                <span class="keyword">throws</span> IOException, InterruptedException {</div><div class="line">            <span class="keyword">int</span> sum = <span class="number">0</span>;</div><div class="line">            <span class="keyword">for</span> (IntWritable val : values) {</div><div class="line">                sum += val.get();</div><div class="line">            }</div><div class="line">            context.write(key, <span class="keyword">new</span> IntWritable(sum));</div><div class="line">        }</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(String[] args) <span class="keyword">throws</span> Exception {</div><div class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</div><div class="line"></div><div class="line">        Job job = <span class="keyword">new</span> Job(conf, <span class="string">"wordcount"</span>);</div><div class="line">        job.setJarByClass(WordCount.class); <span class="comment">//注意，必须添加这行，否则hadoop无法找到对应的class</span></div><div class="line"></div><div class="line">        job.setOutputKeyClass(Text.class);</div><div class="line">        job.setOutputValueClass(IntWritable.class);</div><div class="line"></div><div class="line">        job.setMapperClass(Map.class);</div><div class="line">        job.setReducerClass(Reduce.class);</div><div class="line"></div><div class="line">        job.setInputFormatClass(TextInputFormat.class);</div><div class="line">        job.setOutputFormatClass(TextOutputFormat.class);</div><div class="line"></div><div class="line">        FileInputFormat.addInputPath(job, <span class="keyword">new</span> Path(args[<span class="number">0</span>]));</div><div class="line">        FileOutputFormat.setOutputPath(job, <span class="keyword">new</span> Path(args[<span class="number">1</span>]));</div><div class="line"></div><div class="line">        job.waitForCompletion(<span class="keyword">true</span>);</div><div class="line">    }</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>需要注意的是需要在官方代码中加入<code>job.setJarByClass(WordCount.class);</code>这一行，具体解释可以参考<a href="http://stackoverflow.com/questions/21373550/class-not-found-exception-in-mapreduce-wordcount-job" target="_blank" rel="external">这里</a>。</p>
+<h2 id="生成HelloHadoop_jar包">生成HelloHadoop jar包</h2>
+<p>生成jar包的过程也比较简单，<br>1.选择菜单File-&gt;Project Structure，弹出Project Structure的设置对话框。<br>2.选择左边的Artifacts后点击上方的“+”按钮<br>3.在弹出的框中选择jar-&gt;from moduls with dependencies..<br>4.选择要启动的类，然后 确定<br>5.应用之后，对话框消失。在IDEA选择菜单Build-&gt;Build Artifacts,选择Build或者Rebuild后即可生成，生成的jar文件位于工程项目目录的out/artifacts下。</p>
+<h2 id="运行HelloHadoop_jar包">运行HelloHadoop jar包</h2>
+<p>将生成的HelloHadoop.jar传送到hadoop集群的Name node节点上。<br>处于测试目的，简单写了一个测试数据文本wctest.txt</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span> <span class="keyword">is</span> hadoop test <span class="keyword">string</span></div><div class="line">hadoop hadoop</div><div class="line">test test</div><div class="line"><span class="keyword">string</span> <span class="keyword">string</span> <span class="keyword">string</span></div></pre></td></tr></table></figure>
+
+<p>将该测试文本传到HDFS</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[hdfs<span class="variable">@172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">15</span> data]<span class="variable">$ </span>hdfs dfs -mkdir /user/chenbiaolong/wc_test_input</div><div class="line">[hdfs<span class="variable">@172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">15</span> data]<span class="variable">$ </span>hdfs dfs -put wctest.txt /user/chenbiaolong/wc_test_input</div></pre></td></tr></table></figure>
+
+<p>cd 到jar包对应的目录，执行HelloHadoop jar包</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line">[hdfs@172-22-195-15 code]$ cd WorkCount/</div><div class="line">[hdfs@172-22-195-15 WorkCount]$ ls</div><div class="line">HelloHadoop.jar  </div><div class="line">[hdfs@172-22-195-15 WorkCount]$ hadoop jar HelloHadoop.jar WordCount /user/chenbiaolong/wc_test_input /user/chenbiaolong/wc_test_output</div><div class="line">15/03/26 15:54:19 INFO impl.TimelineClientImpl: Timeline service address: http://172-22-195-17.com:8188/ws/v1/timeline/</div><div class="line">15/03/26 15:54:19 INFO client.RMProxy: Connecting to ResourceManager at 172-22-195-17.com/172.22.195.17:8050</div><div class="line">15/03/26 15:54:20 WARN mapreduce.JobSubmitter: Hadoop command-line option parsing not performed. Implement the Tool interface and <span class="operator"><span class="keyword">execute</span> your application <span class="keyword">with</span> ToolRunner <span class="keyword">to</span> remedy this.</span></div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">20</span> INFO <span class="keyword">input</span>.FileInputFormat: Total <span class="keyword">input</span> paths <span class="keyword">to</span> process : <span class="number">1</span></div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">21</span> INFO mapreduce.JobSubmitter: <span class="built_in">number</span> <span class="keyword">of</span> splits:<span class="number">1</span></div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">21</span> INFO mapreduce.JobSubmitter: Submitting tokens <span class="keyword">for</span> job: job_1427255014010_0005</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">21</span> INFO impl.YarnClientImpl: Submitted application application_1427255014010_0005</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">21</span> INFO mapreduce.Job: The url <span class="keyword">to</span> track the job: http://<span class="number">172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">17.</span>com:<span class="number">8088</span>/proxy/application_1427255014010_0005/</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">21</span> INFO mapreduce.Job: Running job: job_1427255014010_0005</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">28</span> INFO mapreduce.Job: Job job_1427255014010_0005 running <span class="keyword">in</span> uber <span class="keyword">mode</span> : <span class="literal">false</span></div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">28</span> INFO mapreduce.Job:  map <span class="number">0</span>% reduce <span class="number">0</span>%</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">34</span> INFO mapreduce.Job:  map <span class="number">100</span>% reduce <span class="number">0</span>%</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">41</span> INFO mapreduce.Job:  map <span class="number">100</span>% reduce <span class="number">100</span>%</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">42</span> INFO mapreduce.Job: Job job_1427255014010_0005 completed successfully</div><div class="line"><span class="number">15</span>/<span class="number">03</span>/<span class="number">26</span> <span class="number">15</span>:<span class="number">54</span>:<span class="number">43</span> INFO mapreduce.Job: Counters: <span class="number">49</span></div><div class="line">        File System Counters</div><div class="line">                FILE: <span class="built_in">Number</span> <span class="keyword">of</span> bytes <span class="keyword">read</span>=<span class="number">150</span></div><div class="line">                FILE: <span class="built_in">Number</span> <span class="keyword">of</span> bytes written=<span class="number">225815</span></div><div class="line">                FILE: <span class="built_in">Number</span> <span class="keyword">of</span> <span class="keyword">read</span> operations=<span class="number">0</span></div><div class="line">                FILE: <span class="built_in">Number</span> <span class="keyword">of</span> large <span class="keyword">read</span> operations=<span class="number">0</span></div><div class="line">                FILE: <span class="built_in">Number</span> <span class="keyword">of</span> <span class="keyword">write</span> operations=<span class="number">0</span></div><div class="line">                HDFS: <span class="built_in">Number</span> <span class="keyword">of</span> bytes <span class="keyword">read</span>=<span class="number">210</span></div><div class="line">                HDFS: <span class="built_in">Number</span> <span class="keyword">of</span> bytes written=<span class="number">37</span></div><div class="line">                HDFS: <span class="built_in">Number</span> <span class="keyword">of</span> <span class="keyword">read</span> operations=<span class="number">6</span></div><div class="line">                HDFS: <span class="built_in">Number</span> <span class="keyword">of</span> large <span class="keyword">read</span> operations=<span class="number">0</span></div><div class="line">                HDFS: <span class="built_in">Number</span> <span class="keyword">of</span> <span class="keyword">write</span> operations=<span class="number">2</span></div><div class="line">        Job Counters </div><div class="line">                Launched map tasks=<span class="number">1</span></div><div class="line">                Launched reduce tasks=<span class="number">1</span></div><div class="line">                Rack-<span class="keyword">local</span> map tasks=<span class="number">1</span></div><div class="line">                Total <span class="keyword">time</span> spent <span class="keyword">by</span> <span class="keyword">all</span> maps <span class="keyword">in</span> occupied slots (ms)=<span class="number">4133</span></div><div class="line">                Total <span class="keyword">time</span> spent <span class="keyword">by</span> <span class="keyword">all</span> reduces <span class="keyword">in</span> occupied slots (ms)=<span class="number">4793</span></div><div class="line">                Total <span class="keyword">time</span> spent <span class="keyword">by</span> <span class="keyword">all</span> map tasks (ms)=<span class="number">4133</span></div><div class="line">                Total <span class="keyword">time</span> spent <span class="keyword">by</span> <span class="keyword">all</span> reduce tasks (ms)=<span class="number">4793</span></div><div class="line">                Total vcore-seconds taken <span class="keyword">by</span> <span class="keyword">all</span> map tasks=<span class="number">4133</span></div><div class="line">                Total vcore-seconds taken <span class="keyword">by</span> <span class="keyword">all</span> reduce tasks=<span class="number">4793</span></div><div class="line">                Total megabyte-seconds taken <span class="keyword">by</span> <span class="keyword">all</span> map tasks=<span class="number">16928768</span></div><div class="line">                Total megabyte-seconds taken <span class="keyword">by</span> <span class="keyword">all</span> reduce tasks=<span class="number">19632128</span></div><div class="line">        Map-Reduce Framework</div><div class="line">                Map <span class="keyword">input</span> records=<span class="number">4</span></div><div class="line">                Map <span class="keyword">output</span> records=<span class="number">12</span></div><div class="line">                Map <span class="keyword">output</span> bytes=<span class="number">120</span></div><div class="line">                Map <span class="keyword">output</span> materialized bytes=<span class="number">150</span></div><div class="line">                <span class="keyword">Input</span> split bytes=<span class="number">137</span></div><div class="line">                Combine <span class="keyword">input</span> records=<span class="number">0</span></div><div class="line">                Combine <span class="keyword">output</span> records=<span class="number">0</span></div><div class="line">                Reduce <span class="keyword">input</span> groups=<span class="number">5</span></div><div class="line">                Reduce shuffle bytes=<span class="number">150</span></div><div class="line">                Reduce <span class="keyword">input</span> records=<span class="number">12</span></div><div class="line">                Reduce <span class="keyword">output</span> records=<span class="number">5</span></div><div class="line">                Spilled Records=<span class="number">24</span></div><div class="line">                Shuffled Maps =<span class="number">1</span></div><div class="line">                Failed Shuffles=<span class="number">0</span></div><div class="line">                Merged Map outputs=<span class="number">1</span></div><div class="line">                GC <span class="keyword">time</span> elapsed (ms)=<span class="number">91</span></div><div class="line">                CPU <span class="keyword">time</span> spent (ms)=<span class="number">3040</span></div><div class="line">                Physical memory (bytes) <span class="keyword">snapshot</span>=<span class="number">1466998784</span></div><div class="line">                Virtual memory (bytes) <span class="keyword">snapshot</span>=<span class="number">8678326272</span></div><div class="line">                Total committed heap <span class="keyword">usage</span> (bytes)=<span class="number">2200961024</span></div><div class="line">        Shuffle <span class="keyword">Errors</span></div><div class="line">                BAD_ID=<span class="number">0</span></div><div class="line">                <span class="keyword">CONNECTION</span>=<span class="number">0</span></div><div class="line">                IO_ERROR=<span class="number">0</span></div><div class="line">                WRONG_LENGTH=<span class="number">0</span></div><div class="line">                WRONG_MAP=<span class="number">0</span></div><div class="line">                WRONG_REDUCE=<span class="number">0</span></div><div class="line">        File <span class="keyword">Input</span> <span class="keyword">Format</span> Counters </div><div class="line">                Bytes <span class="keyword">Read</span>=<span class="number">73</span></div><div class="line">        File <span class="keyword">Output</span> <span class="keyword">Format</span> Counters </div><div class="line">                Bytes Written=<span class="number">37</span></div><div class="line">[hdfs@<span class="number">172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">15</span> WorkCount]$</div></pre></td></tr></table></figure>
+
+<p>结果被输出到<code>/user/chenbiaolong/wc_test_output</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[hdfs<span class="variable">@172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">15</span> <span class="constant">WorkCount</span>]<span class="variable">$ </span>hdfs dfs -ls /user/chenbiaolong/wc_test_output</div><div class="line"><span class="constant">Found</span> <span class="number">2</span> items</div><div class="line">-rw-r--r--   <span class="number">3</span> hdfs hdfs          <span class="number">0</span> <span class="number">2015</span>-<span class="number">03</span>-<span class="number">26</span> <span class="number">15</span><span class="symbol">:</span><span class="number">54</span> /user/chenbiaolong/wc_test_output/_SUCCESS</div><div class="line">-rw-r--r--   <span class="number">3</span> hdfs hdfs         <span class="number">37</span> <span class="number">2015</span>-<span class="number">03</span>-<span class="number">26</span> <span class="number">15</span><span class="symbol">:</span><span class="number">54</span> /user/chenbiaolong/wc_test_output/part-r-<span class="number">00000</span></div><div class="line">[hdfs<span class="variable">@172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">15</span> <span class="constant">WorkCount</span>]<span class="variable">$ </span>hdfs dfs -cat /user/chenbiaolong/wc_test_output/part-r-<span class="number">00000</span></div><div class="line">hadoop  <span class="number">3</span></div><div class="line">is      <span class="number">1</span></div><div class="line">string  <span class="number">4</span></div><div class="line">test    <span class="number">3</span></div><div class="line">this    <span class="number">1</span></div><div class="line">[hdfs<span class="variable">@172</span>-<span class="number">22</span>-<span class="number">195</span>-<span class="number">15</span> <span class="constant">WorkCount</span>]$</div></pre></td></tr></table></figure>
+
+<p>可以看出我们已经顺利得到正确结果。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/大数据/">大数据</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/hadoop/">hadoop</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenbiaolong.com/2015/03/26/搭建Hadoop开发环境/" data-title="Intellij IDEA 搭建Hadoop开发环境 | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+
+
+
+
+ 
+
+<div class="next">
+<a href="/2015/02/27/docker实现原理之cgroup/"  title="docker实现原理之cgroup">
+ <strong>上一篇：</strong><br/> 
+ <span>docker实现原理之cgroup
+</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/03/26/搭建Hadoop开发环境/" data-title="Intellij IDEA 搭建Hadoop开发环境" data-url="http://chenbiaolong.com/2015/03/26/搭建Hadoop开发环境/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDEA新建maven项目"><span class="toc-number">2.</span> <span class="toc-text">IDEA新建maven项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写WordCount_MapReduce程序"><span class="toc-number">3.</span> <span class="toc-text">编写WordCount MapReduce程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成HelloHadoop_jar包"><span class="toc-number">4.</span> <span class="toc-text">生成HelloHadoop jar包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行HelloHadoop_jar包"><span class="toc-number">5.</span> <span class="toc-text">运行HelloHadoop jar包</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>5</sup></a></li>
+		
+			<li><a href="/categories/大数据/" title="大数据">大数据<sup>1</sup></a></li>
+		
+			<li><a href="/categories/第三方软件/" title="第三方软件">第三方软件<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/docker-基础工作原理/" title="docker 基础工作原理">docker 基础工作原理<sup>5</sup></a></li>
+		
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hadoop/" title="hadoop">hadoop<sup>1</sup></a></li>
+		
+			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://www.zybuluo.com/mdeditor" target="_blank" title="在线markdown工具">在线markdown工具</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://lxr.free-electrons.com/ident" target="_blank" title="linux内核代码检索">linux内核代码检索</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+
+  
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://chenbiaolong.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
+		
+		<!-- Analytics Begin -->
+		
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd945ed3061f3e880f79e49bd827e29c0' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+		<!-- Analytics End -->
+		</p>
+</div>
+</footer>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chenbiaolong"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+
+
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+  </body>
+</html>
