@@ -1,0 +1,422 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Mahout in action分析维基百科数据例子(一) | chenbiaolong&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenbiaolong">
+    
+    <meta name="description" content="概要
+本文主要根据mahout in action第六章分析维基百科链接数据的例子编写。大部分内容是直接翻译的mahout in action，不过不是逐字翻译，加入了一些个人理解。关于本文的前提背景可以参考其他博主翻译的文章：Mahout in action 中文版-6.分布式推荐计算-6.1Mahout in action 中文版-6.分布式推荐计算-6.2">
+    
+    
+    <meta name="description" content="概要
+本文主要根据mahout in action第六章分析维基百科链接数据的例子编写。大部分内容是直接翻译的mahout in action，不过不是逐字翻译，加入了一些个人理解。关于本文的前提背景可以参考其他博主翻译的文章：Mahout in action 中文版-6.分布式推荐计算-6.1Mahout in action 中文版-6.分布式推荐计算-6.2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mahout in action分析维基百科数据例子(一)">
+<meta property="og:url" content="http://chenbiaolong.com/2015/04/03/wiki1/">
+<meta property="og:site_name" content="chenbiaolong's blog">
+<meta property="og:description" content="概要
+本文主要根据mahout in action第六章分析维基百科链接数据的例子编写。大部分内容是直接翻译的mahout in action，不过不是逐字翻译，加入了一些个人理解。关于本文的前提背景可以参考其他博主翻译的文章：Mahout in action 中文版-6.分布式推荐计算-6.1Mahout in action 中文版-6.分布式推荐计算-6.2">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mahout in action分析维基百科数据例子(一)">
+<meta name="twitter:description" content="概要
+本文主要根据mahout in action第六章分析维基百科链接数据的例子编写。大部分内容是直接翻译的mahout in action，不过不是逐字翻译，加入了一些个人理解。关于本文的前提背景可以参考其他博主翻译的文章：Mahout in action 中文版-6.分布式推荐计算-6.1Mahout in action 中文版-6.分布式推荐计算-6.2">
+
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="chenbiaolong&#39;s blog">chenbiaolong&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">存档</a></li>
+					
+						<li><a href="/about">about</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:chenbiaolong.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/03/wiki1/" title="Mahout in action分析维基百科数据例子(一)" itemprop="url">Mahout in action分析维基百科数据例子(一)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		
+  <p class="article-time">
+    <time datetime="2015-04-03T08:34:27.000Z" itemprop="datePublished"> Published Apr 3 2015</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-3-2_使用MapReduce：生成用户向量"><span class="toc-number">2.</span> <span class="toc-text">6.3.2 使用MapReduce：生成用户向量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-3-3_使用MapReduce：计算共现值"><span class="toc-number">3.</span> <span class="toc-text">6.3.3 使用MapReduce：计算共现值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="概要">概要</h2>
+<p>本文主要根据mahout in action第六章分析维基百科链接数据的例子编写。大部分内容是直接翻译的mahout in action，不过不是逐字翻译，加入了一些个人理解。关于本文的前提背景可以参考其他博主翻译的文章：<br><a href="http://www.cnblogs.com/colorfulkoala/archive/2012/12/16/2820855.html" target="_blank" rel="external">Mahout in action 中文版-6.分布式推荐计算-6.1</a><br><a href="http://www.cnblogs.com/colorfulkoala/archive/2012/12/16/2820866.html" target="_blank" rel="external">Mahout in action 中文版-6.分布式推荐计算-6.2</a></p>
+<p><a id="more"></a></p>
+<h2 id="6-3-2_使用MapReduce：生成用户向量">6.3.2 使用MapReduce：生成用户向量</h2>
+<p>在这个例子中，我们主要目的是利用<code>item-base</code>的推荐算法实现维基百科网页的推荐。基础理论就是：如果网页A和网页B同时被多个网页同时引用，那么我们就可以推测网页A和网页B的内容相近。当一个用户看了网页A时，我们可以考虑将网页B推荐给它。计算的输入文件是维基百科的链接数据文件，这个文件的每一行数据并不是按照<code>userId</code>,<code>itemId</code>,<code>preference</code>格式排列的，而是按照<code>userID:itemID1 itemID2 itemID3 ...</code>格式排列。这个格式代表的意义是ID为<code>userID</code>的网页有指向ID为<code>itemID1</code>,<code>itemID2...</code>网页的超链接。可以在<a href="http://haselgrove.id.au/wikipedia.htm" target="_blank" rel="external">这里</a>获得所需要的维基百科链接数据文件。将这个文件传送到HDFS文件系统，以便Hadoop集群使用该文件。<br>为了实现网页推荐功能，我们需要2次的MapReduce操作。</p>
+<p>第一次的MapReduce操作将生成用户向量:</p>
+<ul>
+<li>在MapReduce框架中，输入的文件将会被看成（Long，String）的键值对，Key是Long类型，它表示值在文件中的位置。String是该行具体的数据内容。比如<code>239/98955:590 22 9059</code>，<code>239</code>表示数据行位于的文件位置，<code>95955:590 22</code>是该行的内容</li>
+<li>每一行将会被一个map函数解析为一个<code>user ID</code>和若干个<code>item ID</code>。这个map函数将会生成新的key/value对：一个<code>user ID</code>关联一个<code>item ID</code>,比如<code>98955/590</code></li>
+<li>框架收集所有的被<code>user ID</code>关联的<code>item ID</code></li>
+<li>reduce函数输出<code>user ID</code>和与该用户对各个item的喜好向量。用户喜好向量只能为0或者1（因为链接只有有和没有2种情况）。比如<code>95955/[590:1.0,22:1.0,9059:1.0]</code>表示网页<code>95955</code>有链接到<code>590</code>,<code>22</code>,<code>9059</code>的超链接。需要注意的是这里<code>userID</code>和<code>itemID</code>只是为了表示方便，实际上<code>userID</code>和<code>itemID</code>均表示的是各个网页的ID值。<br>这些思路的具体实现可以参考代码6.1和6.2.代码实现了Hadoop的mapper和reducer接口。<br>列表6.1 解析维基百科链接数据的mapper函数</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WikipediaToItemPrefsMapper</span></span></div><div class="line">    <span class="keyword">extends</span> <span class="title">Mapper</span>&lt;<span class="title">LongWritable</span>,<span class="title">Text</span>,<span class="title">VarLongWritable</span>,<span class="title">VarLongWritable</span>&gt; {</div><div class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Pattern NUMBERS = Pattern.compile(<span class="string">"(\\d+)"</span>);</div><div class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">map</span>(LongWritable key,</div><div class="line">                  Text value,</div><div class="line">                  Context context) </div><div class="line">        <span class="keyword">throws</span> IOException, InterruptedException {</div><div class="line">    String line = value.toString();</div><div class="line">    Matcher m = NUMBERS.matcher(line);</div><div class="line">    m.find();</div><div class="line">    VarLongWritable userID = </div><div class="line">    <span class="keyword">new</span> VarLongWritable(Long.parseLong(m.group()));</div><div class="line">    VarLongWritable itemID = <span class="keyword">new</span> VarLongWritable();</div><div class="line">    <span class="keyword">while</span> (m.find()) {</div><div class="line">      itemID.set(Long.parseLong(m.group()));</div><div class="line">      context.write(userID, itemID);</div><div class="line">    }</div><div class="line">   }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>列表6.2 Reducer函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">WikipediaToUserVectorReducer</span> <span class="keyword">extends</span> </span></div><div class="line">    <span class="title">Reducer</span>&lt;<span class="title">VarLongWritable</span>,<span class="title">VarLongWritable</span>,<span class="title">VarLongWritable</span>,<span class="title">VectorWritable</span>&gt; {</div><div class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reduce</span>(VarLongWritable userID,</div><div class="line">            Iterable&lt;VarLongWritable&gt; itemPrefs,</div><div class="line">            Context context) </div><div class="line">        <span class="keyword">throws</span> IOException, InterruptedException {</div><div class="line">    Vector userVector = <span class="keyword">new</span> RandomAccessSparseVector(</div><div class="line">    Integer.MAX_VALUE, <span class="number">100</span>); </div><div class="line">    <span class="keyword">for</span> (VarLongWritable itemPref : itemPrefs) {</div><div class="line">    userVector.set((<span class="keyword">int</span>)itemPref.get(), <span class="number">1.0</span>f);</div><div class="line">    }</div><div class="line">    context.write(userID, <span class="keyword">new</span> VectorWritable(userVector));</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>可以看出，实际上第一次MapReduce操作只是将<code>varLongWritable</code>的<code>itemID</code>转换成<code>vectorWritable</code>类型的<code>userVector</code>。</p>
+<h2 id="6-3-3_使用MapReduce：计算共现值">6.3.3 使用MapReduce：计算共现值</h2>
+<p>下一个MapReduce操作将根据第一个Mapreduce的结果计算出各个item的共现值(co-occurrence)。这里对共现值简单做一个解释：比如网页A和网页B同时被网页C、D、E链接，那么网页A和网页B的共现值为3。第二个MapReduce函数</p>
+<ol>
+<li>输入是用户ID与用户喜好向量键值对——即第一次MapReduce结果。比如<code>98955/[590:1.0,22:1.0,9059:1.0]</code></li>
+<li>根据第一次mapreduce的结果计算出各个item的共现值。比如第一次mapreduce的一个结果<code>98955/[590:1.0,22:1.0,9059:1.0]</code>，先忽略<code>userID:98955</code>,这个用户ID对应的各个<code>itemID</code>都同时被<code>userID:98955</code>链接，因此各个<code>itemID</code>两两之间的共现值应该加1。因此我们的第二个job的map操作可以用<code>itemID1:itemID2</code>这种格式表示<code>itemID1</code>和<code>itemID2</code>同时被某个<code>userID</code>网页链接，共现值加1.比如用<code>590/22</code>表示网页590和22的共现值需要加1.</li>
+<li>reduce操作就是统计<code>itemID</code>之间的总共现值。在map操作后拥有共现关系（<code>itemID1</code>和<code>itemID2</code>同时被某网页链接表示<code>itemID1</code>和<code>itemID2</code>拥有共现关系）的各个<code>itemID</code>都组成了<code>itemID1:itemID2</code>形式的key-value对。reduce操作需要统计各个网页之间的共现关系。</li>
+</ol>
+<p>假设map操作后我们得到以下结果：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">100 101</div><div class="line">100 105</div><div class="line">100 110</div><div class="line">100 101</div><div class="line">100 105</div><div class="line">100 101</div></pre></td></tr></table></figure>
+
+<p>reduce操作计算100与其他各个ID的共现值，得到另外一组<code>long:vector</code>形式的输出结果。上述例子将输出<br><code>100/[101:3.0, 105:2.0, 110:1.0]</code>的形式。这个共现值有什么用呢？简单来说，两个网页的共现值越大，意味着这两个网页越相似，我们也就可以根据这个特性进行网页推荐了。</p>
+<p>Listing 6.3 Mapper component of co-occurrence computation</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserVectorToCooccurrenceMapper</span> <span class="keyword">extends</span></span></div><div class="line">		<span class="title">Mapper</span>&lt;<span class="title">VarLongWritable</span>, <span class="title">VectorWritable</span>, <span class="title">IntWritable</span>, <span class="title">IntWritable</span>&gt; {</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title">map</span>(VarLongWritable userID, VectorWritable userVector,</div><div class="line">			Context context) <span class="keyword">throws</span> IOException, InterruptedException {</div><div class="line">		Iterator&lt;Vector.Element&gt; it = userVector.get().iterateNonZero();</div><div class="line">		<span class="keyword">while</span> (it.hasNext()) {</div><div class="line">			<span class="keyword">int</span> index1 = it.next().index();</div><div class="line">			Iterator&lt;Vector.Element&gt; it2 = userVector.get().iterateNonZero();</div><div class="line">			<span class="keyword">while</span> (it2.hasNext()) {</div><div class="line">				<span class="keyword">int</span> index2 = it2.next().index();</div><div class="line">				context.write(<span class="keyword">new</span> IntWritable(index1), <span class="keyword">new</span> IntWritable(index2));</div><div class="line">			}</div><div class="line">		}</div><div class="line">	}</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>Listing 6.4 Reducer component of co-occurrence computation</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserVectorToCooccurrenceReducer</span> <span class="keyword">extends</span></span></div><div class="line">		<span class="title">Reducer</span>&lt;<span class="title">IntWritable</span>, <span class="title">IntWritable</span>, <span class="title">IntWritable</span>, <span class="title">VectorWritable</span>&gt; {</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reduce</span>(IntWritable itemIndex1,</div><div class="line">			Iterable&lt;IntWritable&gt; itemIndex2s, Context context)</div><div class="line">			<span class="keyword">throws</span> IOException, InterruptedException {</div><div class="line">		Vector cooccurrenceRow = <span class="keyword">new</span> RandomAccessSparseVector(</div><div class="line">				Integer.MAX_VALUE, <span class="number">100</span>);</div><div class="line">		<span class="keyword">for</span> (IntWritable intWritable : itemIndex2s) {</div><div class="line">			<span class="keyword">int</span> itemIndex2 = intWritable.get();</div><div class="line">			cooccurrenceRow.set(itemIndex2,</div><div class="line">					cooccurrenceRow.get(itemIndex2) + <span class="number">1.0</span>);</div><div class="line">		}</div><div class="line">		context.write(itemIndex1, <span class="keyword">new</span> VectorWritable(cooccurrenceRow));</div><div class="line">	}</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h2 id="小结">小结</h2>
+<p>本文主要解释了实现维基百科网页推荐的基础原理：通过网页之间的共现值判断网页之间的是否相似。本质上就是<code>item-base</code>类型的推荐算法。更详细的内容可以参考<code>mahout in action</code>的相关章节。由于<code>mahout in action</code>只是给出了mapreduce的实现算法，具体利用<code>hadoop</code>运行这两个mapreduce操作时会出现一些问题：比如有一些class在新版本的<code>hadoop</code>已经作了调整;这里的两个mapreduce操作存在相互依赖如何利用<code>hadoop</code>接口解决等。在下一篇文章中我将给出实现这两个mapreduce操作的相应工程代码。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/大数据/">大数据</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/hadoop/">hadoop</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenbiaolong.com/2015/04/03/wiki1/" data-title="Mahout in action分析维基百科数据例子(一) | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+
+
+
+
+ 
+
+<div class="next">
+<a href="/2015/04/01/Hadoop运行包含第三方依赖库的MapReduce作业/"  title="Hadoop运行包含第三方依赖库的MapReduce作业">
+ <strong>上一篇：</strong><br/> 
+ <span>Hadoop运行包含第三方依赖库的MapReduce作业
+</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/04/03/wiki1/" data-title="Mahout in action分析维基百科数据例子(一)" data-url="http://chenbiaolong.com/2015/04/03/wiki1/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-3-2_使用MapReduce：生成用户向量"><span class="toc-number">2.</span> <span class="toc-text">6.3.2 使用MapReduce：生成用户向量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-3-3_使用MapReduce：计算共现值"><span class="toc-number">3.</span> <span class="toc-text">6.3.3 使用MapReduce：计算共现值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>5</sup></a></li>
+		
+			<li><a href="/categories/大数据/" title="大数据">大数据<sup>3</sup></a></li>
+		
+			<li><a href="/categories/第三方软件/" title="第三方软件">第三方软件<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/docker-基础工作原理/" title="docker 基础工作原理">docker 基础工作原理<sup>5</sup></a></li>
+		
+			<li><a href="/tags/hadoop/" title="hadoop">hadoop<sup>3</sup></a></li>
+		
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
+		
+			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Hadoop/" title="Hadoop">Hadoop<sup>0</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://www.zybuluo.com/mdeditor" target="_blank" title="在线markdown工具">在线markdown工具</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://lxr.free-electrons.com/ident" target="_blank" title="linux内核代码检索">linux内核代码检索</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+
+  
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://chenbiaolong.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
+		
+		<!-- Analytics Begin -->
+		
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd945ed3061f3e880f79e49bd827e29c0' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+		<!-- Analytics End -->
+		</p>
+</div>
+</footer>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chenbiaolong"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+
+
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+  </body>
+</html>
