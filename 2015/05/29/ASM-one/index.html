@@ -122,7 +122,7 @@ d_{ik}=\sqrt{w_0(x_{i0}-x_{k0})^2+w_0(y_{i0}-y_{k0})^2+w_1(x_{i1}-x_{k1})^2+w_1(
 d_{ik}^2=(X_i-X_k)^TW(X_i-X_k)
 \]</span> 其中<strong>W</strong>是对角矩阵 <span class="math display">\[
 W=diag(w_0,w_0,w_1,w_1,...w_j,w_j,...w_{n-1},w_{n-1})
-\]</span> 为了实现训练图像的对齐，我们首先选择一幅基准图像，一般选择第一张图像<strong>X1</strong>。训练集中其他图片经过变换尽可能的接近该基准图像，具体的变化过程可以用一个缩放幅度参数<strong>s</strong>，旋转参数<strong>theta</strong>以及平移参数矩阵<strong>t</strong>表示。假设我们要将第2幅图像经过变换尽可能的接近第1幅图像，变换后的图像矩阵表示为： <span class="math display">\[
+\]</span> 为了实现训练图像的对齐，我们首先选择一幅基准图像，一般选择第一张图像<strong>X1</strong>。训练集中其他图片经过变换尽可能的接近该基准图像，具体的变化过程可以用一个缩放幅度参数<strong>s</strong>，旋转参数<strong><span class="math inline">\(\theta\)</span></strong>以及平移参数矩阵<strong>t</strong>表示。假设我们要将第2幅图像经过变换尽可能的接近第1幅图像，变换后的图像矩阵表示为： <span class="math display">\[
 M(s,\theta)[X_2]-t
 \]</span> 变换后的图像矩阵与基准矩阵<strong>X1</strong>的加权欧式距离平方表示为： <span class="math display">\[
 E=（X_1-M(s,\theta)[X_2]-t）^TW（X_1-M(s,\theta)[X_2]-t）
