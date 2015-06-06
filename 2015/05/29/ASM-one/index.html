@@ -100,7 +100,7 @@ ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。�
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练图像的标定"><span class="toc-number">2.</span> <span class="toc-text">训练图像的标定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">3.</span> <span class="toc-text">图像的PCA分析</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练图像的标定"><span class="toc-number">2.</span> <span class="toc-text">训练图像的标定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">3.</span> <span class="toc-text">图像的PCA分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-number">4.</span> <span class="toc-text">参考文献</span></a></li></ol>
 		
 		</div>
 		
@@ -185,7 +185,9 @@ b_i=P^{-1}(X_i-\bar{X})=P^T(X_i-\bar{X})
 X=\bar{X}+Pb
 \]</span> 这里<strong>X</strong>表示形状允许的表现形式。比如我们做人脸识别，虽然各个人的长相不一样，并且拍照的角度不一样，但无论如何人脸的形状都是在平均脸的基础上进行一些形变得到的。我们可以规定向量<strong>b</strong>在一个区间范围之内，只要<strong>b</strong>不脱离这个区间，我们就能认为检测到一张人脸。这也是ASM做形状匹配的基础原理。至于<strong>b</strong>的区间范围，在ASM的原始论文中取 <span class="math display">\[
 -3\sqrt{\lambda_k }\leqslant b_k\leqslant 3\sqrt{\lambda_k }
-\]</span> 现在我们已经分析了ASM的图像对齐以及图像形状的PCA分析，在下一篇中我们将介绍如何进行形状的搜索。 ##参考文献 <a href="http://personalpages.manchester.ac.uk/staff/timothy.f.cootes/papers/cootes_cviu95.pdf" target="_blank" rel="external">active shape models their training and application(原始论文)</a> <a href="http://www.ee.oulu.fi/research/imag/courses/Kokkinos/asm_overview.pdf" target="_blank" rel="external">An Introduction to Active Shape Models</a> <a href="http://blog.csdn.net/carson2005/article/details/8194317" target="_blank" rel="external">ASM（Active Shape Model）算法介绍</a></p>
+\]</span> 现在我们已经分析了ASM的图像对齐以及图像形状的PCA分析，在下一篇中我们将介绍如何进行形状的搜索。</p>
+<h2 id="参考文献">参考文献</h2>
+<p><a href="http://personalpages.manchester.ac.uk/staff/timothy.f.cootes/papers/cootes_cviu95.pdf" target="_blank" rel="external">active shape models their training and application(原始论文)</a> <a href="http://www.ee.oulu.fi/research/imag/courses/Kokkinos/asm_overview.pdf" target="_blank" rel="external">An Introduction to Active Shape Models</a> <a href="http://blog.csdn.net/carson2005/article/details/8194317" target="_blank" rel="external">ASM（Active Shape Model）算法介绍</a></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -249,7 +251,7 @@ X=\bar{X}+Pb
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练图像的标定"><span class="toc-number">2.</span> <span class="toc-text">训练图像的标定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">3.</span> <span class="toc-text">图像的PCA分析</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练图像的标定"><span class="toc-number">2.</span> <span class="toc-text">训练图像的标定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">3.</span> <span class="toc-text">图像的PCA分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-number">4.</span> <span class="toc-text">参考文献</span></a></li></ol>
  
   </div>
 
