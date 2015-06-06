@@ -89,7 +89,7 @@
     <div class="article-content">
         
         <h2 id="工程目录">工程目录</h2>
-<p>建立一个test工程，marven作为依赖管理，具体工程目录如图所示：<br>
+<p>建立一个test工程，marven作为依赖管理，具体工程目录如图所示： 
         
         
         <p class="article-more-link">
@@ -149,7 +149,7 @@
     <div class="article-content">
         
         <h3 id="简介">简介</h3>
-<p>Google Protocol Buffer( 简称 Protobuf) 是 Google 公司内部的混合语言数据标准，目前已经正在使用的有超过 48,162 种报文格式定义和超过 12,183 个 .proto 文件。他们用于 RPC 系统和持续数据存储系统。<br>Protocol Buffers 是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或 RPC 数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。目前提供了 C++、Java、Python 三种语言的 API。</p>
+<p>Google Protocol Buffer( 简称 Protobuf) 是 Google 公司内部的混合语言数据标准，目前已经正在使用的有超过 48,162 种报文格式定义和超过 12,183 个 .proto 文件。他们用于 RPC 系统和持续数据存储系统。 Protocol Buffers 是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或 RPC 数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。目前提供了 C++、Java、Python 三种语言的 API。</p>
 
         
         
@@ -214,9 +214,8 @@
 </header>
     <div class="article-content">
         
-        <p>在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。</p>
-<h2 id="loop设备介绍">loop设备介绍</h2>
-<p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。<br>在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替代块特殊文件的接口。因此，如果这个文件包含有一个完整的文件系统，那么这个文件就可以像一个磁盘设备一样被 mount 起来。<br>
+        <p>在本篇博文中将主要介绍docker使用device mapper管理镜像的原理。这部分内容我也没完全搞懂，以下内容主要是通过参考多篇博文总结出的概要。 ##loop设备介绍</p>
+<p>在类 UNIX 系统里，loop 设备是一种伪设备(pseudo-device)，或者也可以说是仿真设备。它能使我们像块设备一样访问一个文件。 在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替代块特殊文件的接口。因此，如果这个文件包含有一个完整的文件系统，那么这个文件就可以像一个磁盘设备一样被 mount 起来。 
         
         
         <p class="article-more-link">
@@ -281,7 +280,7 @@
     <div class="article-content">
         
         <h2 id="概述">概述</h2>
-<p>相信很多人和我一样，初学docker时一直无法搞懂docker镜像的工作机理。这几天对docker如何工作进行了一番研究，简单整理一下。<br>docker的两大核心基础技术是<a href="http://lwn.net/Articles/531114/" target="_blank" rel="external">namespace</a>和cgroup，cgroup主要作资源的限制隔离，它可以限制一组进程中能使用的最大资源使用量，相对比较好理解；namespace同样可以实现资源隔离，不同的是它是通过使PID,IPC,Network等系统资源不再是全局性的，而是属于特定的Namespace实现的。每个Namespace里面的资源对其他Namespace都是透明的，这个概念有点类似于linux的多用户机制。<br>
+<p>相信很多人和我一样，初学docker时一直无法搞懂docker镜像的工作机理。这几天对docker如何工作进行了一番研究，简单整理一下。 docker的两大核心基础技术是<a href="http://lwn.net/Articles/531114/" target="_blank" rel="external">namespace</a>和cgroup，cgroup主要作资源的限制隔离，它可以限制一组进程中能使用的最大资源使用量，相对比较好理解；namespace同样可以实现资源隔离，不同的是它是通过使PID,IPC,Network等系统资源不再是全局性的，而是属于特定的Namespace实现的。每个Namespace里面的资源对其他Namespace都是透明的，这个概念有点类似于linux的多用户机制。 
         
         
         <p class="article-more-link">
@@ -367,11 +366,11 @@
 		
 			<li><a href="/tags/决策树/" title="决策树">决策树<sup>2</sup></a></li>
 		
-			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
+			<li><a href="/tags/ASM/" title="ASM">ASM<sup>1</sup></a></li>
 		
 			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
 		
-			<li><a href="/tags/ASM/" title="ASM">ASM<sup>1</sup></a></li>
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
 		
 		</ul>
 </div>
