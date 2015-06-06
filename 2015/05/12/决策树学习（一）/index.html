@@ -100,7 +100,7 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据准备"><span class="toc-number">2.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现"><span class="toc-number">3.</span> <span class="toc-text">代码实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据准备"><span class="toc-number">2.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#信息增益的度量标准熵"><span class="toc-number">3.</span> <span class="toc-text">信息增益的度量标准：熵</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现"><span class="toc-number">4.</span> <span class="toc-text">代码实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
 		
 		</div>
 		
@@ -112,7 +112,9 @@
 <img src="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150511151725.png" alt="此处输入图片的描述">
 <p class="caption">此处输入图片的描述</p>
 </div>
-<p>从图中可以看出决定是否打球的因素主要有：outlook（天气）、humidity（湿度）和wind（风力）。那么这三个属性哪一个属性是最优的数据集划分方式呢？即我们得到哪一个属性值可以有最大的概率判断出最终的结果（yes或no）呢？获得最优的数据划分方式有一个优势是可以将该属性放在前几个判断节点上，这样在处理大量的数据时可以减少整体数据集的平均搜索深度。这里就需要引入信息熵的概念。 ##信息增益的度量标准：熵 熵的具体定义参考<a href="http://zh.wikipedia.org/zh-cn/%E7%86%B5_%28%E4%BF%A1%E6%81%AF%E8%AE%BA%29" target="_blank" rel="external">维基百科</a>。简单的说熵是衡量一个系统的无序程度的物理单位，一个系统越混乱，该系统的熵越大。在信息领域中我们对数据进行分析得到结果的过程是一个熵减过程。 对于一个bool型的系统，给定包含关于某个目标概念的正反样例的样例集S，那么S相对这个布尔型分类的熵为： <span class="math display">\[Entropy(S)=-p_{+}log_2p_+-p_-log_2p_-\]</span> 上述公式中，p+代表正样例，比如在本文例子中p+则意味着去打球，而p-则代表反样例，不去打球(在有关熵的所有计算中我们定义0log0为0)。 举例来说，假设S是一个关于布尔概念的有14个样例的集合，它包括9个正例和5个反例（我们采用记号[9+，5-]来概括这样的数据样例），那么S相对于这个布尔样例的熵为：</p>
+<p>从图中可以看出决定是否打球的因素主要有：outlook（天气）、humidity（湿度）和wind（风力）。那么这三个属性哪一个属性是最优的数据集划分方式呢？即我们得到哪一个属性值可以有最大的概率判断出最终的结果（yes或no）呢？获得最优的数据划分方式有一个优势是可以将该属性放在前几个判断节点上，这样在处理大量的数据时可以减少整体数据集的平均搜索深度。这里就需要引入信息熵的概念。</p>
+<h2 id="信息增益的度量标准熵">信息增益的度量标准：熵</h2>
+<p>熵的具体定义参考<a href="http://zh.wikipedia.org/zh-cn/%E7%86%B5_%28%E4%BF%A1%E6%81%AF%E8%AE%BA%29" target="_blank" rel="external">维基百科</a>。简单的说熵是衡量一个系统的无序程度的物理单位，一个系统越混乱，该系统的熵越大。在信息领域中我们对数据进行分析得到结果的过程是一个熵减过程。 对于一个bool型的系统，给定包含关于某个目标概念的正反样例的样例集S，那么S相对这个布尔型分类的熵为： <span class="math display">\[Entropy(S)=-p_{+}log_2p_+-p_-log_2p_-\]</span> 上述公式中，p+代表正样例，比如在本文例子中p+则意味着去打球，而p-则代表反样例，不去打球(在有关熵的所有计算中我们定义0log0为0)。 举例来说，假设S是一个关于布尔概念的有14个样例的集合，它包括9个正例和5个反例（我们采用记号[9+，5-]来概括这样的数据样例），那么S相对于这个布尔样例的熵为：</p>
 <p><span class="math display">\[Entropy（[9+，5-]）=-（9/14）log_2（9/14）-（5/14）log_2（5/14）=0.940。\]</span></p>
 <p>根据上述这个公式，我们可以得到：S的所有成员属于同一类，Entropy(S)=0； S的正反样例数量相等，Entropy(S)=1；S的正反样例数量不等，熵介于0，1之间，如下图所示：</p>
 <div class="figure">
@@ -224,7 +226,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据准备"><span class="toc-number">2.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现"><span class="toc-number">3.</span> <span class="toc-text">代码实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据准备"><span class="toc-number">2.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#信息增益的度量标准熵"><span class="toc-number">3.</span> <span class="toc-text">信息增益的度量标准：熵</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现"><span class="toc-number">4.</span> <span class="toc-text">代码实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
  
   </div>
 
