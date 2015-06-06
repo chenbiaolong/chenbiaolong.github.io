@@ -9,19 +9,27 @@
     
     <meta name="author" content="chenbiaolong">
     
-    <meta name="description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读 ##概要 ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训练获得形状模型，再通过关键点的匹配实现特定物体的匹配。ASM 的优点是 能根据训练数据对于参数的调节加以限制，从而将形状的改变限制在一个合理的范围内。本文将根据ASM的原始论文和一些资料，整理ASM算法的数学原理。">
+    <meta name="description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读
+概要
+ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训练获得形状模型，再通过关键点的匹配实现特定物体的匹配。ASM 的优点是 能根据训练数据对于参数的调节加以限制，从而将形状的改变限制在一个合理的范围内。本文将根据ASM的原始论文和一些资料，整理ASM算法的数学原理。">
     
     
-    <meta name="description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读 ##概要 ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训">
+    <meta name="description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读
+概要
+ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ASM(active shape model)算法简介(一)">
 <meta property="og:url" content="http://chenbiaolong.com/2015/05/29/ASM-one/">
 <meta property="og:site_name" content="chenbiaolong's blog">
-<meta property="og:description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读 ##概要 ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训">
+<meta property="og:description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读
+概要
+ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训">
 <meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blog1353147003_8880.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ASM(active shape model)算法简介(一)">
-<meta name="twitter:description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读 ##概要 ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训">
+<meta name="twitter:description" content="由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问这个链接阅读
+概要
+ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训">
 
 
     
@@ -92,11 +100,15 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">1.</span> <span class="toc-text">图像的PCA分析</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练图像的标定"><span class="toc-number">2.</span> <span class="toc-text">训练图像的标定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">3.</span> <span class="toc-text">图像的PCA分析</span></a></li></ol>
 		
 		</div>
 		
-		<p>由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问<a href="https://zybuluo.com/chenbiaolong/note/104505" target="_blank" rel="external">这个链接</a>阅读 ##概要 ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训练获得形状模型，再通过关键点的匹配实现特定物体的匹配。ASM 的优点是 能根据训练数据对于参数的调节加以限制，从而将形状的改变限制在一个合理的范围内。本文将根据ASM的原始论文和一些资料，整理ASM算法的数学原理。 <a id="more"></a> ##训练图像的标定 为了建立ASM，需要一组标有n个特征点的N幅人脸图象(包括多个人的不同表情和姿态)作为训练数据。特征点可以标记在脸的外部轮廓和器官的边缘，如下图所示。 <img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog1353147003_8880.png" alt="此处输入图片的描述"> 这张图中有67个标定点，需要注意的是各个标定点的顺序在训练集中的各张照片需要一致。比如<code>2</code>和<code>12</code>这两点分别对应脸和耳朵的连接处，在其他的训练图像中也要有一样的标定点。 假设我们一共有<code>N</code>张的训练图，每一张图都有<code>n</code>个点，第<code>i</code>张图像的第<code>k</code>点坐标表示为 <span class="math display">\[\left(x_{i,j},y_{i,j}\right)\]</span> 对于第i张图像，各个标定点可以用一个矩阵表示： <span class="math display">\[X_i=\left [ x_{i0},y_{i0},x_{i1},y_{i1},...x_{i(n-1)},y_{i(n-1)}\right ]^T\]</span> 其中1&lt;=<code>i</code>&lt;=N; ##训练图像的对齐 为了研究训练图象的形状变化，比较不同形状中相对应的点，应先对这些图象进行对齐。对齐是指以某个形状为基准，对其它形状进行旋转，缩放和平移使其尽可能的与基准形状接近的过程。 <strong>与基准形状尽可能接近</strong>，在数学上我们经常用欧式距离的大小衡量接近的程度。假设图像i的标定点矩阵为<strong>Xi</strong>,图像j的标定点矩阵为<strong>Xj</strong>,二者的欧式距离大小为 <span class="math display">\[d_{ik}=\sqrt{(x_{i0}-x_{k0})^2+(y_{i0}-y_{k0})^2+(x_{i1}-x_{k1})^2+(y_{i1}-y_{k1})^2+...+(x_{i(n-1)}-x_{k(n-1)})^2+(y_{i(n-1)}-y_{k(n-1)})^2}\]</span> 也可以用如下的矩阵运算形式表示： <span class="math display">\[
+		<p>由于hexo对latex支持的不是很好，本文的数学公式显示有些问题，待解决。请访问<a href="https://zybuluo.com/chenbiaolong/note/104505" target="_blank" rel="external">这个链接</a>阅读</p>
+<h2 id="概要">概要</h2>
+<p>ASM是一种基于点分布模型（Point Distribution Model,PDM）的算法。在PDM中，外形相似的物体，例如人脸、人手、心脏、肺部等的几何形状可以通过若干关键特征点（landmarks）的坐标依次串联形成一个形状向量来表示。ASM算法需要通过人工标定的方法先标定训练集，经过训练获得形状模型，再通过关键点的匹配实现特定物体的匹配。ASM 的优点是 能根据训练数据对于参数的调节加以限制，从而将形状的改变限制在一个合理的范围内。本文将根据ASM的原始论文和一些资料，整理ASM算法的数学原理。 <a id="more"></a></p>
+<h2 id="训练图像的标定">训练图像的标定</h2>
+<p>为了建立ASM，需要一组标有n个特征点的N幅人脸图象(包括多个人的不同表情和姿态)作为训练数据。特征点可以标记在脸的外部轮廓和器官的边缘，如下图所示。 <img src="http://7u2qr4.com1.z0.glb.clouddn.com/blog1353147003_8880.png" alt="此处输入图片的描述"> 这张图中有67个标定点，需要注意的是各个标定点的顺序在训练集中的各张照片需要一致。比如<code>2</code>和<code>12</code>这两点分别对应脸和耳朵的连接处，在其他的训练图像中也要有一样的标定点。 假设我们一共有<code>N</code>张的训练图，每一张图都有<code>n</code>个点，第<code>i</code>张图像的第<code>k</code>点坐标表示为 <span class="math display">\[\left(x_{i,j},y_{i,j}\right)\]</span> 对于第i张图像，各个标定点可以用一个矩阵表示： <span class="math display">\[X_i=\left [ x_{i0},y_{i0},x_{i1},y_{i1},...x_{i(n-1)},y_{i(n-1)}\right ]^T\]</span> 其中1&lt;=<code>i</code>&lt;=N; ##训练图像的对齐 为了研究训练图象的形状变化，比较不同形状中相对应的点，应先对这些图象进行对齐。对齐是指以某个形状为基准，对其它形状进行旋转，缩放和平移使其尽可能的与基准形状接近的过程。 <strong>与基准形状尽可能接近</strong>，在数学上我们经常用欧式距离的大小衡量接近的程度。假设图像i的标定点矩阵为<strong>Xi</strong>,图像j的标定点矩阵为<strong>Xj</strong>,二者的欧式距离大小为 <span class="math display">\[d_{ik}=\sqrt{(x_{i0}-x_{k0})^2+(y_{i0}-y_{k0})^2+(x_{i1}-x_{k1})^2+(y_{i1}-y_{k1})^2+...+(x_{i(n-1)}-x_{k(n-1)})^2+(y_{i(n-1)}-y_{k(n-1)})^2}\]</span> 也可以用如下的矩阵运算形式表示： <span class="math display">\[
 d_{ik}^2=(X_i-X_k)^T(X_i-X_k)
 \]</span> 有时我们需要对各个点加上不同的权值，设加权矩阵为<strong>W</strong>，加权的欧式距离为 <span class="math display">\[
 d_{ik}=\sqrt{w_0(x_{i0}-x_{k0})^2+w_0(y_{i0}-y_{k0})^2+w_1(x_{i1}-x_{k1})^2+w_1(y_{i1}-y_{k1})^2+...+w_{n-1}(x_{i(n-1)}-x_{k(n-1)})^2+w_{n-1}(y_{i(n-1)}-y_{k(n-1)})^2}
@@ -231,7 +243,7 @@ X=\bar{X}+Pb
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">1.</span> <span class="toc-text">图像的PCA分析</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练图像的标定"><span class="toc-number">2.</span> <span class="toc-text">训练图像的标定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图像的pca分析"><span class="toc-number">3.</span> <span class="toc-text">图像的PCA分析</span></a></li></ol>
  
   </div>
 
