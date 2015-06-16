@@ -10,23 +10,23 @@
     <meta name="author" content="chenbiaolong">
     
     <meta name="description" content="概要
-在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸”的程度。在这篇文章中我们将讨论在一张图片中ASM算法是如何逐步找到特定形状的。">
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为\(X=\bar{X}+Pb\)，\(\bar{X}\)为平均形状，从公式可以看出选定不同的\(b\)可以得到形状的不同形态。我们将\(b\)称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\(\bar{X}\)是训练集中各个人的平均脸，表示“完美”的人脸。而\(Pb\)表示实际图片中的人脸偏离“完美人脸”的程度。在这篇文章中我们将讨论在一张图片中ASM算法是如何逐步找到特定形状的。">
     
     
     <meta name="description" content="概要
-在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为\(X=\bar{X}+Pb\)，\(\bar{X}\)为平均形状，从公式可以看出选定不同的\(b\)可以得到形状的不同形态。我们将\(b\)称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\(\bar{X}\)是训练集中各个人的平均脸，表示“完美”的人脸。而\(Pb\)表示实际">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ASM(active shape model)算法简介(二)">
 <meta property="og:url" content="http://chenbiaolong.com/2015/06/16/ASM-two/">
 <meta property="og:site_name" content="chenbiaolong's blog">
 <meta property="og:description" content="概要
-在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为\(X=\bar{X}+Pb\)，\(\bar{X}\)为平均形状，从公式可以看出选定不同的\(b\)可以得到形状的不同形态。我们将\(b\)称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\(\bar{X}\)是训练集中各个人的平均脸，表示“完美”的人脸。而\(Pb\)表示实际">
 <meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615170812.png">
 <meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615195435.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ASM(active shape model)算法简介(二)">
 <meta name="twitter:description" content="概要
-在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为\(X=\bar{X}+Pb\)，\(\bar{X}\)为平均形状，从公式可以看出选定不同的\(b\)可以得到形状的不同形态。我们将\(b\)称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\(\bar{X}\)是训练集中各个人的平均脸，表示“完美”的人脸。而\(Pb\)表示实际">
 
 
     
@@ -97,12 +97,12 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asm算法图像搜索过程"><span class="toc-number">2.</span> <span class="toc-text">ASM算法图像搜索过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每一个特征点构建局部特性"><span class="toc-number">2.1.</span> <span class="toc-text">为每一个特征点构建局部特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算每个特征点的新位置"><span class="toc-number">2.2.</span> <span class="toc-text">计算每个特征点的新位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型参数更新"><span class="toc-number">2.3.</span> <span class="toc-text">模型参数更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asm算法图像搜索过程"><span class="toc-number">2.</span> <span class="toc-text">ASM算法图像搜索过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每一个特征点构建局部特性"><span class="toc-number">2.1.</span> <span class="toc-text">为每一个特征点构建局部特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算每个特征点的新位置"><span class="toc-number">2.2.</span> <span class="toc-text">计算每个特征点的新位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型参数更新"><span class="toc-number">2.3.</span> <span class="toc-text">模型参数更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参数更新"><span class="toc-number">3.</span> <span class="toc-text">参数更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
 		
 		</div>
 		
 		<h2 id="概要">概要</h2>
-<p>在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb<span class="math inline">\(，\)</span>{X}<span class="math inline">\(为平均形状，从公式可以看出选定不同的\)</span>b<span class="math inline">\(可以得到形状的不同形态。我们将\)</span>b<span class="math inline">\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\)</span>{X}<span class="math inline">\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)</span>Pb$表示实际图片中的人脸偏离“完美人脸”的程度。在这篇文章中我们将讨论在一张图片中ASM算法是如何逐步找到特定形状的。 <a id="more"></a></p>
+<p>在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为<span class="math inline">\(X=\bar{X}+Pb\)</span>，<span class="math inline">\(\bar{X}\)</span>为平均形状，从公式可以看出选定不同的<span class="math inline">\(b\)</span>可以得到形状的不同形态。我们将<span class="math inline">\(b\)</span>称为形状参数(shape parameter)。举个例子来说，在人脸识别中，<span class="math inline">\(\bar{X}\)</span>是训练集中各个人的平均脸，表示“完美”的人脸。而<span class="math inline">\(Pb\)</span>表示实际图片中的人脸偏离“完美人脸”的程度。在这篇文章中我们将讨论在一张图片中ASM算法是如何逐步找到特定形状的。 <a id="more"></a></p>
 <h2 id="asm算法图像搜索过程">ASM算法图像搜索过程</h2>
 <h3 id="为每一个特征点构建局部特性">为每一个特征点构建局部特性</h3>
 <p>因为给定的平均形状未必与当前图形的形状一致，所以需要对平均形状进行调整并使其与真正的形状最接近，即找到每个点的最佳位置。为此，首先分析训练集中每幅图象的局部灰度信息。对每个形状的每一个特征点，在经过此点且沿与其邻近点垂直方向上取<span class="math inline">\(2m+1\)</span>个象素的灰度并对其标准化作为局部灰度信息,称为一个profile。局部灰度信息特征的创建过程如下：</p>
@@ -136,12 +136,54 @@ dX=(dX_1,dX_2,...dX_n)
 <h3 id="模型参数更新">模型参数更新</h3>
 <p>在上一篇文章中我们将形状表示为： <span class="math display">\[
 X=\bar{X}+Pb 
-\]</span> 其中 <span class="math inline">\(b=(b_1,b_2...,b_k)^T\)</span>, $ -3b_i3; (0<i\leqslant k)="" $="" 为了表述方便，我们将这个式子中的$x$表示为基准形状，而$\bar{x}$表示为平均形状。平均形状调整形状参数就可以得到不同的基准形状。同样用人脸作为例子，$\bar{x}$是训练集中人的平均脸，而基准形状$x$可以表示为照片中某个人（假设为张三）的人脸，对基准形状进行旋转、缩放、平移就是张三的不同照片，旋转缩放平移参数称为姿态参数（pose="" parameter）。="" 我们先假定一个基准形状的初始姿态$x_i$(张三的一张照片)，它可由一个基准形状$x$（张三的脸）经过旋转$\theta$，缩放$s$和平移得到,表示为：="" $$="" x_i="M(s,\theta)[X]+X_c" 其中$x_c="(x_c,y_c,x_c,y_c,...x_c,y_c)^T$,$(x_c,y_c)$是图像模型的中心。" 经过前一小节的分析，我们得到形状的一个位移向量$dx_i$。由于我们搜索的是一种**形状**，而$dx_i$是只是各个点与初始位置的偏移向量，我们无法将$dx_i$与上一篇文章中建立的形状模型相联系。="" 在这一小节我们将$dx_i$与上一篇文章建立的模型进行联系。由于模型建立好后的$\bar{x}$与特征向量$p$都已经确定，当模型变化时变化的参数只能是$b$参数，假设变化量为$db$。因此我们必须建立起$dx_i$与$db$的映射关系。="" 为了使$x$经过形状参数变化和姿态参数变化使其与$x_i+dx_i$最接近，我们需要改变$x_i="M(s,\theta)[X]+X_c$式中的$X$为$X+dX$。将其姿态参数中的平移量，旋转角度和缩放比例比例分别改变$(dx_c,dy_c),d\theta$和$(1+ds)$。表示为下式：" m(s(1+ds),\theta+d\theta)[x+dx]+(x_c+dx_c)="X_i+dX_i" 由于$x_i="M(s,\theta)[X]+X_c$上面的公式也可以表示为:" m(s(1+ds),\theta+d\theta)[x+dx]="M(s,\theta)[X]+dX_i-dX_c" 由于="" m^{-1}(s,\theta)[...]="M(s^{-1},-\theta)[...]" 可以得到：="" x+dx="M((s(1+ds))^{-1},-(\theta+d\theta))[M(s,\theta)[X]+dX_i-dX_c]" 为了表述方便，令$y="M(s,\theta)[X]+dX_i-dX_c$,则上式可表示为" 可以求得$dx$的表达式：="" dx="M((s(1+ds))^{-1},-(\theta+d\theta))[y]-X" 等式里面的姿态参数变化量$(1+ds,d\theta,dx_c)$可以通过上一篇文章中图像对齐的算法求得。="" 我们希望找到这么一个$db$使得以下的式子成立：="" x+dx\approx="" \bar{x}+p(b+db)="" 联立$x="\bar{X}+Pb$，求得：" \approx="" p(db)="" 所以="" db="P^TdX" ##参数更新="" 我们总结一下参数更新的流程。="" 1.="" 我们有一个初始形状$x$，并且初始形状有一个初始的姿态$x_i$。$x="\bar{X}+Pb,X_i=M(s，\theta)[X]+X_c$" 2.="" 我们根据局部灰度信息，得到一个位移向量$dx_i$,这个位移向量使当前图像的模型点移动到更好的位置。="" 3.="" 我们利用上一篇文章中的图像对齐算法调整姿态参数使$x_i$尽可能的接近$x_i+dx_i$，进而获得姿态参数的变化量$(1+ds,d\theta,dx_c)$。="" 4.="" 根据上面的姿态参数（pose="" parameter）变化量，我们获得形状参数（shape="" parameter）的变化:="" $$db="P^TdX\\" y="M(s,\theta)[X]+dX_i-dX_c" 5.="" 对姿态参数和形状参数进行更新:="" x_c--="">X_c+dX_c <span class="math display">\[
- \]</span> s–&gt;s+ds <span class="math display">\[
- \]</span> –&gt;+d\ <span class="math display">\[
- \]</span> b–&gt;b+db $$</i\leqslant></p>
-<ol start="6" style="list-style-type: decimal">
-<li>参数更新后我们得到一个新的形状<span class="math inline">\(X^{(1)}\)</span>,以及该形状的姿态<span class="math inline">\(X_i^{(1)}\)</span>,并且有 <span class="math display">\[
+\]</span> 其中 <span class="math inline">\(b=(b_1,b_2...,b_k)^T\)</span>, <span class="math inline">\(-3\sqrt{\lambda_i }\leqslant b_i\leqslant 3\sqrt{\lambda_i }; (0&lt;i\leqslant k)\)</span></p>
+<p>为了表述方便，我们将这个式子中的<span class="math inline">\(X\)</span>表示为基准形状，而<span class="math inline">\(\bar{X}\)</span>表示为平均形状。平均形状调整形状参数就可以得到不同的基准形状。同样用人脸作为例子，<span class="math inline">\(\bar{X}\)</span>是训练集中人的平均脸，而基准形状<span class="math inline">\(X\)</span>可以表示为照片中某个人（假设为张三）的人脸，对基准形状进行旋转、缩放、平移就是张三的不同照片，旋转缩放平移参数称为姿态参数（pose parameter）。</p>
+<p>我们先假定一个基准形状的初始姿态<span class="math inline">\(X_i\)</span>(张三的一张照片)，它可由一个基准形状<span class="math inline">\(X\)</span>（张三的脸）经过旋转<span class="math inline">\(\theta\)</span>，缩放<span class="math inline">\(s\)</span>和平移得到,表示为： <span class="math display">\[
+X_i=M(s,\theta)[X]+X_c
+\]</span> 其中<span class="math inline">\(X_c=(x_c,y_c,x_c,y_c,...x_c,y_c)^T\)</span>,<span class="math inline">\((x_c,y_c)\)</span>是图像模型的中心。</p>
+<p>经过前一小节的分析，我们得到形状的一个位移向量<span class="math inline">\(dX_i\)</span>。由于我们搜索的是一种<strong>形状</strong>，而<span class="math inline">\(dX_i\)</span>是只是各个点与初始位置的偏移向量，我们无法将<span class="math inline">\(dX_i\)</span>与上一篇文章中建立的形状模型相联系。</p>
+<p>在这一小节我们将<span class="math inline">\(dX_i\)</span>与上一篇文章建立的模型进行联系。由于模型建立好后的<span class="math inline">\(\bar{X}\)</span>与特征向量<span class="math inline">\(P\)</span>都已经确定，当模型变化时变化的参数只能是<span class="math inline">\(b\)</span>参数，假设变化量为<span class="math inline">\(db\)</span>。因此我们必须建立起<span class="math inline">\(dX_i\)</span>与<span class="math inline">\(db\)</span>的映射关系。</p>
+<p>为了使<span class="math inline">\(X\)</span>经过形状参数变化和姿态参数变化使其与<span class="math inline">\(X_i+dX_i\)</span>最接近，我们需要改变<span class="math inline">\(X_i=M(s,\theta)[X]+X_c\)</span>式中的<span class="math inline">\(X\)</span>为<span class="math inline">\(X+dX\)</span>。将其姿态参数中的平移量，旋转角度和缩放比例比例分别改变<span class="math inline">\((dx_c,dy_c),d\theta\)</span>和<span class="math inline">\((1+ds)\)</span>。表示为下式：</p>
+<p><span class="math display">\[
+M(s(1+ds),\theta+d\theta)[X+dX]+(X_c+dX_c)=X_i+dX_i
+\]</span> 由于<span class="math inline">\(X_i=M(s,\theta)[X]+X_c\)</span>上面的公式也可以表示为: <span class="math display">\[
+M(s(1+ds),\theta+d\theta)[X+dX]=M(s,\theta)[X]+dX_i-dX_c
+\]</span> 由于 <span class="math display">\[
+M^{-1}(s,\theta)[...]=M(s^{-1},-\theta)[...]
+\]</span> 可以得到： <span class="math display">\[
+X+dX=M((s(1+ds))^{-1},-(\theta+d\theta))[M(s,\theta)[X]+dX_i-dX_c]
+\]</span> 为了表述方便，令<span class="math inline">\(y=M(s,\theta)[X]+dX_i-dX_c\)</span>,则上式可表示为 <span class="math display">\[
+X+dX=M((s(1+ds))^{-1},-(\theta+d\theta))[y]
+\]</span> 可以求得<span class="math inline">\(dX\)</span>的表达式： <span class="math display">\[
+dX=M((s(1+ds))^{-1},-(\theta+d\theta))[y]-X
+\]</span> 等式里面的姿态参数变化量<span class="math inline">\((1+ds,d\theta,dX_c)\)</span>可以通过上一篇文章中图像对齐的算法求得。</p>
+<p>我们希望找到这么一个<span class="math inline">\(db\)</span>使得以下的式子成立： <span class="math display">\[
+X+dX\approx \bar{X}+P(b+db)
+\]</span> 联立<span class="math inline">\(X=\bar{X}+Pb\)</span>，求得： <span class="math display">\[
+dX \approx P(db)
+\]</span> 所以 <span class="math display">\[
+db=P^TdX
+\]</span></p>
+<h2 id="参数更新">参数更新</h2>
+<p>我们总结一下参数更新的流程。</p>
+<ol style="list-style-type: decimal">
+<li><p>我们有一个初始形状<span class="math inline">\(X\)</span>，并且初始形状有一个初始的姿态<span class="math inline">\(X_i\)</span>。<span class="math inline">\(X=\bar{X}+Pb,X_i=M(s，\theta)[X]+X_c\)</span></p></li>
+<li><p>我们根据局部灰度信息，得到一个位移向量<span class="math inline">\(dX_i\)</span>,这个位移向量使当前图像的模型点移动到更好的位置。</p></li>
+<li><p>我们利用上一篇文章中的图像对齐算法调整姿态参数使<span class="math inline">\(X_i\)</span>尽可能的接近<span class="math inline">\(X_i+dX_i\)</span>，进而获得姿态参数的变化量<span class="math inline">\((1+ds,d\theta,dX_c)\)</span>。</p></li>
+<li><p>根据上面的姿态参数（pose parameter）变化量，我们获得形状参数（shape parameter）的变化: <span class="math display">\[db=P^TdX\\
+ dX=M((s(1+ds))^{-1},-(\theta+d\theta))[y]-X\\
+ y=M(s,\theta)[X]+dX_i-dX_c
+ \]</span></p></li>
+<li><p>对姿态参数和形状参数进行更新: <span class="math display">\[
+ X_c--&gt;X_c+dX_c
+ \]</span> <span class="math display">\[
+ s--&gt;s+ds
+ \]</span> <span class="math display">\[
+ \theta--&gt;\theta+d\theta\\
+ \]</span> <span class="math display">\[
+ b--&gt;b+db
+ \]</span></p></li>
+<li><p>参数更新后我们得到一个新的形状<span class="math inline">\(X^{(1)}\)</span>,以及该形状的姿态<span class="math inline">\(X_i^{(1)}\)</span>,并且有 <span class="math display">\[
 X^{(1)}=\bar{X}+Pb^{(1)},X_i^{(1)}=M(s^{(1)}，\theta^{(1)})[X^{(1)}]+X_c^{(1)}
 \]</span> 其中 <span class="math display">\[
  X_c^{(1)}=X_c+dX_c
@@ -151,7 +193,7 @@ X^{(1)}=\bar{X}+Pb^{(1)},X_i^{(1)}=M(s^{(1)}，\theta^{(1)})[X^{(1)}]+X_c^{(1)}
  \theta^{(1)}=\theta+d\theta\\
  \]</span> <span class="math display">\[
  b^{(1)}=b+db
- \]</span></li>
+ \]</span></p></li>
 </ol>
 <p>7.返回1进行迭代计算，直到参数变化不大</p>
 <h2 id="小结">小结</h2>
@@ -219,7 +261,7 @@ X^{(1)}=\bar{X}+Pb^{(1)},X_i^{(1)}=M(s^{(1)}，\theta^{(1)})[X^{(1)}]+X_c^{(1)}
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asm算法图像搜索过程"><span class="toc-number">2.</span> <span class="toc-text">ASM算法图像搜索过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每一个特征点构建局部特性"><span class="toc-number">2.1.</span> <span class="toc-text">为每一个特征点构建局部特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算每个特征点的新位置"><span class="toc-number">2.2.</span> <span class="toc-text">计算每个特征点的新位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型参数更新"><span class="toc-number">2.3.</span> <span class="toc-text">模型参数更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asm算法图像搜索过程"><span class="toc-number">2.</span> <span class="toc-text">ASM算法图像搜索过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每一个特征点构建局部特性"><span class="toc-number">2.1.</span> <span class="toc-text">为每一个特征点构建局部特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算每个特征点的新位置"><span class="toc-number">2.2.</span> <span class="toc-text">计算每个特征点的新位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型参数更新"><span class="toc-number">2.3.</span> <span class="toc-text">模型参数更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参数更新"><span class="toc-number">3.</span> <span class="toc-text">参数更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
  
   </div>
 
