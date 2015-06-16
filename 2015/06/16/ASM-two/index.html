@@ -1,0 +1,467 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>ASM(active shape model)算法简介(二) | chenbiaolong&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenbiaolong">
+    
+    <meta name="description" content="概要
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸”的程度。在这篇文章中我们将讨论在一张图片中ASM算法是如何逐步找到特定形状的。">
+    
+    
+    <meta name="description" content="概要
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ASM(active shape model)算法简介(二)">
+<meta property="og:url" content="http://chenbiaolong.com/2015/06/16/ASM-two/">
+<meta property="og:site_name" content="chenbiaolong's blog">
+<meta property="og:description" content="概要
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ASM(active shape model)算法简介(二)">
+<meta name="twitter:description" content="概要
+在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="chenbiaolong&#39;s blog">chenbiaolong&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">存档</a></li>
+					
+						<li><a href="/about">about</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:chenbiaolong.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/06/16/ASM-two/" title="ASM(active shape model)算法简介(二)" itemprop="url">ASM(active shape model)算法简介(二)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		
+  <p class="article-time">
+    <time datetime="2015-06-16T09:17:20.000Z" itemprop="datePublished"> Published Jun 16 2015</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asm算法图像搜索过程"><span class="toc-number">2.</span> <span class="toc-text">ASM算法图像搜索过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每一个特征点构建局部特性"><span class="toc-number">2.1.</span> <span class="toc-text">为每一个特征点构建局部特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算每个特征点的新位置"><span class="toc-number">2.2.</span> <span class="toc-text">计算每个特征点的新位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型参数更新"><span class="toc-number">2.3.</span> <span class="toc-text">模型参数更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="概要">概要</h2>
+<p>在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb<span class="math inline">\(，\)</span>{X}<span class="math inline">\(为平均形状，从公式可以看出选定不同的\)</span>b<span class="math inline">\(可以得到形状的不同形态。我们将\)</span>b<span class="math inline">\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\)</span>{X}<span class="math inline">\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)</span>Pb$表示实际图片中的人脸偏离“完美人脸”的程度。在这篇文章中我们将讨论在一张图片中ASM算法是如何逐步找到特定形状的。 <a id="more"></a></p>
+<h2 id="asm算法图像搜索过程">ASM算法图像搜索过程</h2>
+<h3 id="为每一个特征点构建局部特性">为每一个特征点构建局部特性</h3>
+<p>因为给定的平均形状未必与当前图形的形状一致，所以需要对平均形状进行调整并使其与真正的形状最接近，即找到每个点的最佳位置。为此，首先分析训练集中每幅图象的局部灰度信息。对每个形状的每一个特征点，在经过此点且沿与其邻近点垂直方向上取<span class="math inline">\(2m+1\)</span>个象素的灰度并对其标准化作为局部灰度信息,称为一个profile。局部灰度信息特征的创建过程如下：</p>
+<p>[此处输入图片的描述][1]</p>
+<p>如上图所示，在第i个训练图像的第j个特征点两侧，沿着垂直于该点前后两个特征点连线的方向上分别选择m个像素以构成一个长度为2m+1的向量，这2m+1维的向量叫做特征点j的profile，我们用<span class="math inline">\(g_{ij}\)</span>表示第i张图第j个特征点的profile。 <span class="math display">\[
+g_{ij}=(g_{ij0},g_{ij1},g_{ij2},...,g_{ij2m})^T
+\]</span> 其中<span class="math inline">\(g_{ijk}\)</span>表示<span class="math inline">\(2m+1\)</span>个像素点中第k个像素点的灰度值。我们再对特征点的profile进行一些处理，将相邻的像素点的灰度信息相减(即数字图像的求导)，得到<span class="math inline">\(2m\)</span>维度的<span class="math inline">\(dg_{ij}\)</span>,称为<strong>derivative profile</strong> <span class="math display">\[
+dg_{ij}=(g_{ij1}-g_{ij0},g_{ij2}-g_{ij1},...,g_{ijn_{p-1}}-g_{ij(2m-1)})^T
+\]</span></p>
+<p>接下来我们再求各个训练图像中特征点j的<strong>derivative profile</strong>平均值 <span class="math display">\[
+\bar{g_j}=\frac{1}{N}\sum_{i=1}^{N}dg_{ij}
+\]</span> 以及方差矩阵 <span class="math display">\[
+C_{j}=\frac{1}{N}\sum_{i=1}^{N}(g_{ij}-\bar{g_j})(g_{ij}-\bar{g_j})^T
+\]</span> 至此，我们得到了形状特征点j的局部灰度模型。这个灰度模型包括的信息是在特征点附近的灰度梯度信息和灰度值方差信息。在新的图像中我们只需将一个位置的灰度信息和我们得到的上述模型的局部灰度信息进行比较，相似度越高则说明位置越好。匹配点从初始位置出发，逐渐逼近最优位置。特征点j的新特征<span class="math inline">\(s_j\)</span>与其训练好的局部特征之间的相似程度可以用马氏距离表示： <span class="math display">\[
+f_{sim}=(s_j-\bar{g_j})C_{j}^{-1}(s_j-\bar{g_j})^T
+\]</span> 其中<span class="math inline">\(s_j\)</span>的计算过程与<span class="math inline">\(\bar{g_j}\)</span>类似</p>
+<h3 id="计算每个特征点的新位置">计算每个特征点的新位置</h3>
+<p>在上一小节中,我们根据训练集获得了特征点<span class="math inline">\(j\)</span>的局部灰度信息模型<span class="math inline">\(\bar{g_j}\)</span>,并且得到了与该局部灰度信息模型相似度的计算公式： <span class="math display">\[
+f_{sim}=(s_j-\bar{g_j})C_{j}^{-1}(s_j-\bar{g_j})^T
+\]</span> 我们将根据这2个信息计算在搜索图像（非训练图像）中寻找各个特征点的新位置。首先先把初始ASM模型覆盖在搜索图像上，模型上各个特征点都有一个初始位置。对于第<span class="math inline">\(j\)</span>个特征点，在垂直于前后两个特征点连线上以其为中心两边各选择<span class="math inline">\(l\)</span>（<span class="math inline">\(l\)</span>&gt;<span class="math inline">\(m\)</span>）个像素,然后计算这<span class="math inline">\(l\)</span>个像素的灰度值导数并归一化从而得到一个局部特征，其包括<span class="math inline">\(2(l-m)+1\)</span>个子局部特性，然后利用前面的公式计算这些子局部特性与当前特征点的局部特性之间的马氏距离，使得马氏距离最小的那个子局部特性的中心即为当前特征点的新位置，这样就会产生一个位移。示意图如下： [此处输入图片的描述][2] 通过这个流程我们可以计算得到各个特征点的新位置，它们相对于初始位置的位移组成一个向量<span class="math inline">\(dX\)</span>, <span class="math display">\[
+dX=(dX_1,dX_2,...dX_n) 
+\]</span> 其中n代表形状的特征点个数。</p>
+<h3 id="模型参数更新">模型参数更新</h3>
+<p>在上一篇文章中我们将形状表示为： <span class="math display">\[
+X=\bar{X}+Pb 
+\]</span> 其中 <span class="math inline">\(b=(b_1,b_2...,b_k)^T\)</span>, $ -3b_i3; (0<i\leqslant k)="" $="" 为了表述方便，我们将这个式子中的$x$表示为基准形状，而$\bar{x}$表示为平均形状。平均形状调整形状参数就可以得到不同的基准形状。同样用人脸作为例子，$\bar{x}$是训练集中人的平均脸，而基准形状$x$可以表示为照片中某个人（假设为张三）的人脸，对基准形状进行旋转、缩放、平移就是张三的不同照片，旋转缩放平移参数称为姿态参数（pose="" parameter）。="" 我们先假定一个基准形状的初始姿态$x_i$(张三的一张照片)，它可由一个基准形状$x$（张三的脸）经过旋转$\theta$，缩放$s$和平移得到,表示为：="" $$="" x_i="M(s,\theta)[X]+X_c" 其中$x_c="(x_c,y_c,x_c,y_c,...x_c,y_c)^T$,$(x_c,y_c)$是图像模型的中心。" 经过前一小节的分析，我们得到形状的一个位移向量$dx_i$。由于我们搜索的是一种**形状**，而$dx_i$是只是各个点与初始位置的偏移向量，我们无法将$dx_i$与上一篇文章中建立的形状模型相联系。="" 在这一小节我们将$dx_i$与上一篇文章建立的模型进行联系。由于模型建立好后的$\bar{x}$与特征向量$p$都已经确定，当模型变化时变化的参数只能是$b$参数，假设变化量为$db$。因此我们必须建立起$dx_i$与$db$的映射关系。="" 为了使$x$经过形状参数变化和姿态参数变化使其与$x_i+dx_i$最接近，我们需要改变$x_i="M(s,\theta)[X]+X_c$式中的$X$为$X+dX$。将其姿态参数中的平移量，旋转角度和缩放比例比例分别改变$(dx_c,dy_c),d\theta$和$(1+ds)$。表示为下式：" m(s(1+ds),\theta+d\theta)[x+dx]+(x_c+dx_c)="X_i+dX_i" 由于$x_i="M(s,\theta)[X]+X_c$上面的公式也可以表示为:" m(s(1+ds),\theta+d\theta)[x+dx]="M(s,\theta)[X]+dX_i-dX_c" 由于="" m^{-1}(s,\theta)[...]="M(s^{-1},-\theta)[...]" 可以得到：="" x+dx="M((s(1+ds))^{-1},-(\theta+d\theta))[M(s,\theta)[X]+dX_i-dX_c]" 为了表述方便，令$y="M(s,\theta)[X]+dX_i-dX_c$,则上式可表示为" 可以求得$dx$的表达式：="" dx="M((s(1+ds))^{-1},-(\theta+d\theta))[y]-X" 等式里面的姿态参数变化量$(1+ds,d\theta,dx_c)$可以通过上一篇文章中图像对齐的算法求得。="" 我们希望找到这么一个$db$使得以下的式子成立：="" x+dx\approx="" \bar{x}+p(b+db)="" 联立$x="\bar{X}+Pb$，求得：" \approx="" p(db)="" 所以="" db="P^TdX" ##参数更新="" 我们总结一下参数更新的流程。="" 1.="" 我们有一个初始形状$x$，并且初始形状有一个初始的姿态$x_i$。$x="\bar{X}+Pb,X_i=M(s，\theta)[X]+X_c$" 2.="" 我们根据局部灰度信息，得到一个位移向量$dx_i$,这个位移向量使当前图像的模型点移动到更好的位置。="" 3.="" 我们利用上一篇文章中的图像对齐算法调整姿态参数使$x_i$尽可能的接近$x_i+dx_i$，进而获得姿态参数的变化量$(1+ds,d\theta,dx_c)$。="" 4.="" 根据上面的姿态参数（pose="" parameter）变化量，我们获得形状参数（shape="" parameter）的变化:="" $$db="P^TdX\\" y="M(s,\theta)[X]+dX_i-dX_c" 5.="" 对姿态参数和形状参数进行更新:="" x_c--="">X_c+dX_c <span class="math display">\[
+ \]</span> s–&gt;s+ds <span class="math display">\[
+ \]</span> –&gt;+d\ <span class="math display">\[
+ \]</span> b–&gt;b+db $$</i\leqslant></p>
+<ol start="6" style="list-style-type: decimal">
+<li>参数更新后我们得到一个新的形状<span class="math inline">\(X^{(1)}\)</span>,以及该形状的姿态<span class="math inline">\(X_i^{(1)}\)</span>,并且有 <span class="math display">\[
+X^{(1)}=\bar{X}+Pb^{(1)},X_i^{(1)}=M(s^{(1)}，\theta^{(1)})[X^{(1)}]+X_c^{(1)}
+\]</span> 其中 <span class="math display">\[
+ X_c^{(1)}=X_c+dX_c
+ \]</span> <span class="math display">\[
+ s^{(1)}=s+ds
+ \]</span> <span class="math display">\[
+ \theta^{(1)}=\theta+d\theta\\
+ \]</span> <span class="math display">\[
+ b^{(1)}=b+db
+ \]</span></li>
+</ol>
+<p>7.返回1进行迭代计算，直到参数变化不大</p>
+<h2 id="小结">小结</h2>
+<p>本文对ASM算法进行了总结，由于这两篇文章是我根据ASM论文和一些材料的个人理解写成的，可能有些错误，如果有疑惑，请以原始论文为准。 [1]: http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615170812.png [2]: http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615195435.png</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ASM/">ASM</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenbiaolong.com/2015/06/16/ASM-two/" data-title="ASM(active shape model)算法简介(二) | chenbiaolong&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+
+
+
+
+ 
+
+<div class="next">
+<a href="/2015/05/29/ASM-one/"  title="ASM(active shape model)算法简介(一)">
+ <strong>上一篇：</strong><br/> 
+ <span>ASM(active shape model)算法简介(一)
+</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/06/16/ASM-two/" data-title="ASM(active shape model)算法简介(二)" data-url="http://chenbiaolong.com/2015/06/16/ASM-two/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概要"><span class="toc-number">1.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#asm算法图像搜索过程"><span class="toc-number">2.</span> <span class="toc-text">ASM算法图像搜索过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为每一个特征点构建局部特性"><span class="toc-number">2.1.</span> <span class="toc-text">为每一个特征点构建局部特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算每个特征点的新位置"><span class="toc-number">2.2.</span> <span class="toc-text">计算每个特征点的新位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型参数更新"><span class="toc-number">2.3.</span> <span class="toc-text">模型参数更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>5</sup></a></li>
+		
+			<li><a href="/categories/大数据/" title="大数据">大数据<sup>4</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/第三方软件/" title="第三方软件">第三方软件<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/docker-基础工作原理/" title="docker 基础工作原理">docker 基础工作原理<sup>5</sup></a></li>
+		
+			<li><a href="/tags/hadoop/" title="hadoop">hadoop<sup>4</sup></a></li>
+		
+			<li><a href="/tags/ASM/" title="ASM">ASM<sup>2</sup></a></li>
+		
+			<li><a href="/tags/决策树/" title="决策树">决策树<sup>2</sup></a></li>
+		
+			<li><a href="/tags/spring/" title="spring">spring<sup>1</sup></a></li>
+		
+			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://www.zybuluo.com/mdeditor" target="_blank" title="在线markdown工具">在线markdown工具</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://lxr.free-electrons.com/ident" target="_blank" title="linux内核代码检索">linux内核代码检索</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+
+  
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://chenbiaolong.com/about" target="_blank" title="chenbiaolong">chenbiaolong</a>
+		
+		<!-- Analytics Begin -->
+		
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd945ed3061f3e880f79e49bd827e29c0' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+		<!-- Analytics End -->
+		</p>
+</div>
+</footer>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chenbiaolong"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+
+
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!--
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+-->
+<script type="text/javascript" src="http://cdn.bootcss.com/mathjax/2.5.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- MathJax End -->
+
+
+  </body>
+</html>
