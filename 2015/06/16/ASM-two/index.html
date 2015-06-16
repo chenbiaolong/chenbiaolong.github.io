@@ -125,7 +125,12 @@ f_{sim}=(s_j-\bar{g_j})C_{j}^{-1}(s_j-\bar{g_j})^T
 <h3 id="计算每个特征点的新位置">计算每个特征点的新位置</h3>
 <p>在上一小节中,我们根据训练集获得了特征点<span class="math inline">\(j\)</span>的局部灰度信息模型<span class="math inline">\(\bar{g_j}\)</span>,并且得到了与该局部灰度信息模型相似度的计算公式： <span class="math display">\[
 f_{sim}=(s_j-\bar{g_j})C_{j}^{-1}(s_j-\bar{g_j})^T
-\]</span> 我们将根据这2个信息计算在搜索图像（非训练图像）中寻找各个特征点的新位置。首先先把初始ASM模型覆盖在搜索图像上，模型上各个特征点都有一个初始位置。对于第<span class="math inline">\(j\)</span>个特征点，在垂直于前后两个特征点连线上以其为中心两边各选择<span class="math inline">\(l\)</span>（<span class="math inline">\(l\)</span>&gt;<span class="math inline">\(m\)</span>）个像素,然后计算这<span class="math inline">\(l\)</span>个像素的灰度值导数并归一化从而得到一个局部特征，其包括<span class="math inline">\(2(l-m)+1\)</span>个子局部特性，然后利用前面的公式计算这些子局部特性与当前特征点的局部特性之间的马氏距离，使得马氏距离最小的那个子局部特性的中心即为当前特征点的新位置，这样就会产生一个位移。示意图如下： <img src="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615195435.png" alt="此处输入图片的描述"> 通过这个流程我们可以计算得到各个特征点的新位置，它们相对于初始位置的位移组成一个向量<span class="math inline">\(dX\)</span>, <span class="math display">\[
+\]</span> 我们将根据这2个信息计算在搜索图像（非训练图像）中寻找各个特征点的新位置。首先先把初始ASM模型覆盖在搜索图像上，模型上各个特征点都有一个初始位置。对于第<span class="math inline">\(j\)</span>个特征点，在垂直于前后两个特征点连线上以其为中心两边各选择<span class="math inline">\(l\)</span>（<span class="math inline">\(l\)</span>&gt;<span class="math inline">\(m\)</span>）个像素,然后计算这<span class="math inline">\(l\)</span>个像素的灰度值导数并归一化从而得到一个局部特征，其包括<span class="math inline">\(2(l-m)+1\)</span>个子局部特性，然后利用前面的公式计算这些子局部特性与当前特征点的局部特性之间的马氏距离，使得马氏距离最小的那个子局部特性的中心即为当前特征点的新位置，这样就会产生一个位移。示意图如下：</p>
+<div class="figure">
+<img src="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615195435.png" alt="此处输入图片的描述">
+<p class="caption">此处输入图片的描述</p>
+</div>
+<p>通过这个流程我们可以计算得到各个特征点的新位置，它们相对于初始位置的位移组成一个向量<span class="math inline">\(dX\)</span>, <span class="math display">\[
 dX=(dX_1,dX_2,...dX_n) 
 \]</span> 其中n代表形状的特征点个数。</p>
 <h3 id="模型参数更新">模型参数更新</h3>
