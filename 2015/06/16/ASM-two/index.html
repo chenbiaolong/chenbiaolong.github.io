@@ -21,6 +21,8 @@
 <meta property="og:site_name" content="chenbiaolong's blog">
 <meta property="og:description" content="概要
 在上一篇文章中，我们利用PCA分析根据训练集得到了形状的平均模型。一个形状可以表示为$ X={X}+Pb\(，\){X}\(为平均形状，从公式可以看出选定不同的\)b\(可以得到形状的不同形态。我们将\)b\(称为形状参数(shape parameter)。举个例子来说，在人脸识别中，\){X}\(是训练集中各个人的平均脸，表示“完美”的人脸。而\)Pb$表示实际图片中的人脸偏离“完美人脸">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615170812.png">
+<meta property="og:image" content="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615195435.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ASM(active shape model)算法简介(二)">
 <meta name="twitter:description" content="概要
@@ -104,7 +106,10 @@
 <h2 id="asm算法图像搜索过程">ASM算法图像搜索过程</h2>
 <h3 id="为每一个特征点构建局部特性">为每一个特征点构建局部特性</h3>
 <p>因为给定的平均形状未必与当前图形的形状一致，所以需要对平均形状进行调整并使其与真正的形状最接近，即找到每个点的最佳位置。为此，首先分析训练集中每幅图象的局部灰度信息。对每个形状的每一个特征点，在经过此点且沿与其邻近点垂直方向上取<span class="math inline">\(2m+1\)</span>个象素的灰度并对其标准化作为局部灰度信息,称为一个profile。局部灰度信息特征的创建过程如下：</p>
-<p>[此处输入图片的描述][1]</p>
+<div class="figure">
+<img src="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615170812.png" alt="此处输入图片的描述">
+<p class="caption">此处输入图片的描述</p>
+</div>
 <p>如上图所示，在第i个训练图像的第j个特征点两侧，沿着垂直于该点前后两个特征点连线的方向上分别选择m个像素以构成一个长度为2m+1的向量，这2m+1维的向量叫做特征点j的profile，我们用<span class="math inline">\(g_{ij}\)</span>表示第i张图第j个特征点的profile。 <span class="math display">\[
 g_{ij}=(g_{ij0},g_{ij1},g_{ij2},...,g_{ij2m})^T
 \]</span> 其中<span class="math inline">\(g_{ijk}\)</span>表示<span class="math inline">\(2m+1\)</span>个像素点中第k个像素点的灰度值。我们再对特征点的profile进行一些处理，将相邻的像素点的灰度信息相减(即数字图像的求导)，得到<span class="math inline">\(2m\)</span>维度的<span class="math inline">\(dg_{ij}\)</span>,称为<strong>derivative profile</strong> <span class="math display">\[
@@ -120,7 +125,7 @@ f_{sim}=(s_j-\bar{g_j})C_{j}^{-1}(s_j-\bar{g_j})^T
 <h3 id="计算每个特征点的新位置">计算每个特征点的新位置</h3>
 <p>在上一小节中,我们根据训练集获得了特征点<span class="math inline">\(j\)</span>的局部灰度信息模型<span class="math inline">\(\bar{g_j}\)</span>,并且得到了与该局部灰度信息模型相似度的计算公式： <span class="math display">\[
 f_{sim}=(s_j-\bar{g_j})C_{j}^{-1}(s_j-\bar{g_j})^T
-\]</span> 我们将根据这2个信息计算在搜索图像（非训练图像）中寻找各个特征点的新位置。首先先把初始ASM模型覆盖在搜索图像上，模型上各个特征点都有一个初始位置。对于第<span class="math inline">\(j\)</span>个特征点，在垂直于前后两个特征点连线上以其为中心两边各选择<span class="math inline">\(l\)</span>（<span class="math inline">\(l\)</span>&gt;<span class="math inline">\(m\)</span>）个像素,然后计算这<span class="math inline">\(l\)</span>个像素的灰度值导数并归一化从而得到一个局部特征，其包括<span class="math inline">\(2(l-m)+1\)</span>个子局部特性，然后利用前面的公式计算这些子局部特性与当前特征点的局部特性之间的马氏距离，使得马氏距离最小的那个子局部特性的中心即为当前特征点的新位置，这样就会产生一个位移。示意图如下： [此处输入图片的描述][2] 通过这个流程我们可以计算得到各个特征点的新位置，它们相对于初始位置的位移组成一个向量<span class="math inline">\(dX\)</span>, <span class="math display">\[
+\]</span> 我们将根据这2个信息计算在搜索图像（非训练图像）中寻找各个特征点的新位置。首先先把初始ASM模型覆盖在搜索图像上，模型上各个特征点都有一个初始位置。对于第<span class="math inline">\(j\)</span>个特征点，在垂直于前后两个特征点连线上以其为中心两边各选择<span class="math inline">\(l\)</span>（<span class="math inline">\(l\)</span>&gt;<span class="math inline">\(m\)</span>）个像素,然后计算这<span class="math inline">\(l\)</span>个像素的灰度值导数并归一化从而得到一个局部特征，其包括<span class="math inline">\(2(l-m)+1\)</span>个子局部特性，然后利用前面的公式计算这些子局部特性与当前特征点的局部特性之间的马氏距离，使得马氏距离最小的那个子局部特性的中心即为当前特征点的新位置，这样就会产生一个位移。示意图如下： <img src="http://7u2qr4.com1.z0.glb.clouddn.com/blogTimLine%E6%88%AA%E5%9B%BE20150615195435.png" alt="此处输入图片的描述"> 通过这个流程我们可以计算得到各个特征点的新位置，它们相对于初始位置的位移组成一个向量<span class="math inline">\(dX\)</span>, <span class="math display">\[
 dX=(dX_1,dX_2,...dX_n) 
 \]</span> 其中n代表形状的特征点个数。</p>
 <h3 id="模型参数更新">模型参数更新</h3>
