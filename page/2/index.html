@@ -75,6 +75,71 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2015/02/26/docker实现原理之namespace/" title="docker实现原理之namespace" itemprop="url">docker实现原理之namespace</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://chenbiaolong.com/about" title="chenbiaolong" target="_blank" itemprop="author">chenbiaolong</a>
+		
+  <p class="article-time">
+    <time datetime="2015-02-26T11:26:25.000Z" itemprop="datePublished"> Published Feb 26 2015</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h2 id="概要">概要</h2>
+<p>传统上，linux很多资源是全局管理的，例如系统中所有的进程是通过pid标识的，这意味着内核管理着一个全局pid表，进程号必须为唯一的。类似的还有内核的文件系统挂载点数据信息、用户ID号等。我们知道，要实现虚拟化必须要有独立的资源分配，才能使容器之间不互相影响，那如何使这些全局表局域化呢？答案是namespace。Namespace将传统的全局资源变为某个名字空间的局域资源。目前linux内核实现的namespace主要有: 
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2015/02/26/docker实现原理之namespace/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/docker/">docker</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker-基础工作原理/">docker 基础工作原理</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="http://chenbiaolong.com/2015/02/26/docker实现原理之namespace/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/02/26/docker实现原理之namespace/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2015/02/26/dockervm/" title="docker与虚拟机性能比较" itemprop="url">docker与虚拟机性能比较</a>
   </h1>
   <p class="article-author">By
@@ -412,7 +477,7 @@
 		
 			<li><a href="/categories/大数据/" title="大数据">大数据<sup>4</sup></a></li>
 		
-			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>5</sup></a></li>
 		
 			<li><a href="/categories/第三方软件/" title="第三方软件">第三方软件<sup>1</sup></a></li>
 		
@@ -433,6 +498,8 @@
 			<li><a href="/tags/ASM/" title="ASM">ASM<sup>2</sup></a></li>
 		
 			<li><a href="/tags/决策树/" title="决策树">决策树<sup>2</sup></a></li>
+		
+			<li><a href="/tags/SVD/" title="SVD">SVD<sup>1</sup></a></li>
 		
 			<li><a href="/tags/protobuf/" title="protobuf">protobuf<sup>1</sup></a></li>
 		
